@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  comfyui:
+    image: timpietruskyblibla/runpod-worker-comfy:1.0.0
+    container_name: comfyui-worker
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    runtime: nvidia
+    volumes:
+      - ./data:/data
