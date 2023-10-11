@@ -4,14 +4,20 @@
 
 <!-- toc -->
 
-- [What](#what)
+- [Config](#config)
+  - [Upload image to AWS S3](#upload-image-to-aws-s3)
+  - [GitHub Action](#github-action)
+- [Setup](#setup)
+- [Build the image](#build-the-image)
+- [Local testing](#local-testing)
+  - [Test setup for Windows](#test-setup-for-windows)
+- [ToDo](#todo)
 
 <!-- tocstop -->
 
 ---
 
-This worker is using Ubuntu with CUDA drivers as it's base. It setups ComfyUI and makes it available via an runpod-compatible handler. The worker waits until the image was generated in ComfyUI, uploads the image to AWS S3 and provides the URL to the image as a reponse.
-This repository houses a Docker setup built on an Ubuntu base with CUDA drivers for enhanced performance.
+This worker is using Ubuntu with CUDA drivers as it's base. It setups ComfyUI and makes it available via an runpod-compatible handler. The worker waits until the image was generated in ComfyUI, uploads the image to AWS S3 and provides the URL to the image as a response.
 
 ## Config
 
@@ -23,15 +29,26 @@ This repository houses a Docker setup built on an Ubuntu base with CUDA drivers 
 | `BUCKET_ACCESS_KEY_ID`     | Your AWS access key ID for accessing the S3 bucket.     | `AKIAIOSFODNN7EXAMPLE`                     |
 | `BUCKET_SECRET_ACCESS_KEY` | Your AWS secret access key for accessing the S3 bucket. | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
 
-## ToDo
+### GitHub Action
 
-- use the network volume
+This is only relevant if you want to publish the image to Docker Hub via a GitHub action.
+
+| Configuration Variable | Description                                                  | Example Value         |
+| ---------------------- | ------------------------------------------------------------ | --------------------- |
+| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                                    | `your-username`       |
+| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
+| `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
+| `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
 
 ## Setup
 
 ## Build the image
 
-`docker build -t timpietruskyblibla/runpod-worker-comfy:1.0.0 .`
+- You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:1.0.0 .`
+
+## Release
+
+- There are two workflows, one
 
 ## Local testing
 
@@ -59,3 +76,7 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
   - For the step "Install the appropriate Windows vGPU driver for WSL": If you already have your GPU driver installed on Windows, you can skip this
 
 - Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
+
+## ToDo
+
+- use the network volume
