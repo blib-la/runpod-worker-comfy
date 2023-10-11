@@ -13,16 +13,20 @@ RUN apt-get update && apt-get install -y \
     python3.10 \
     python3-pip \
     git \
-    wget
+    wget \
+    ntpdate
+
+# Update the system time
+RUN ntpdate -s time.aws.com
 
 # Clean up to reduce image size
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Clone ComfyUI repository
-RUN git clone https://github.com/comfyanonymous/ComfyUI.git /ComfyUI
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git /comfyui
 
 # Change working directory to ComfyUI
-WORKDIR /ComfyUI
+WORKDIR /comfyui
 
 # Install ComfyUI dependencies
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 \
@@ -30,12 +34,13 @@ RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https:/
     && pip3 install -r requirements.txt
 
 # Install runpod
-RUN pip3 install runpod
+RUN pip3 install runpod requests
 
-# Download Stable Diffusion XL
+# Download the models
 # RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+# RUN wget -O models/checkpoints/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
 
-# Add the models
+# # Add the models
 ADD models/checkpoints/sd_xl_base_1.0.safetensors models/checkpoints/
 ADD models/checkpoints/sdxl_vae.safetensors models/checkpoints/
 
@@ -43,7 +48,7 @@ ADD models/checkpoints/sdxl_vae.safetensors models/checkpoints/
 WORKDIR /
 
 # Add the start and the handler
-ADD src/start.sh src/rp_handler.py ./
+ADD src/start.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh
 
 # Start the container
