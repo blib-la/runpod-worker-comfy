@@ -37,12 +37,12 @@ RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https:/
 RUN pip3 install runpod requests
 
 # Download the models
-# RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
-# RUN wget -O models/checkpoints/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
+RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+RUN wget -O models/checkpoints/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
 
 # # Add the models
-ADD models/checkpoints/sd_xl_base_1.0.safetensors models/checkpoints/
-ADD models/checkpoints/sdxl_vae.safetensors models/checkpoints/
+# ADD models/checkpoints/sd_xl_base_1.0.safetensors models/checkpoints/
+# ADD models/checkpoints/sdxl_vae.safetensors models/checkpoints/
 
 # Go back to the root
 WORKDIR /
