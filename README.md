@@ -1,6 +1,12 @@
-# RunPod Worker Comfy
+# runpod-worker-comfy
 
-> ComfyUI via API on [RunPod](https://www.runpod.io/) serverless
+> [ComfyUI](https://github.com/comfyanonymous/ComfyUI) as a serverless API on [RunPod](https://www.runpod.io/)
+
+<center>
+  <img src="assets/worker_sitting_in_comfy_chair.jpg" title="Worker sitting in comfy chair" />
+</center>
+
+---
 
 <!-- toc -->
 
@@ -24,9 +30,11 @@
 
 ---
 
-This worker is using Ubuntu with CUDA drivers as it's base. It setups ComfyUI and makes it available via an runpod-compatible handler. The worker waits until the image was generated in ComfyUI, uploads the image to AWS S3 and provides the URL to the image as a response.
+## Quickstart
 
----
+🐳 Use the latest image for your worker: [timpietruskyblibla/runpod-worker-comfy:1.0.0](https://hub.docker.com/r/timpietruskyblibla/runpod-worker-comfy)
+
+ℹ️ Need more details? Then let's check out: [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 
 ## Features
 
@@ -34,6 +42,7 @@ This worker is using Ubuntu with CUDA drivers as it's base. It setups ComfyUI an
 * Generated images are uploaded to AWS S3
 * Build-in checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
 * Build-in VAE: [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
+* Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 
 ## Config
