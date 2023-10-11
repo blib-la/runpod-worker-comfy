@@ -25,6 +25,16 @@
 
 This worker is using Ubuntu with CUDA drivers as it's base. It setups ComfyUI and makes it available via an runpod-compatible handler. The worker waits until the image was generated in ComfyUI, uploads the image to AWS S3 and provides the URL to the image as a response.
 
+---
+
+## Features
+
+* Run any [ComfyUI](https://github.com/comfyanonymous/ComfyUI) workflow to generate an image
+* Generated images are uploaded to AWS S3
+* Build-in checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
+* Build-in VAE: [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
+
+
 ## Config
 
 ### Upload image to AWS S3
