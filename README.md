@@ -10,6 +10,7 @@
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
   * [Health status](#health-status)
   * [Generate an image](#generate-an-image)
+    + [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
 - [Release](#release)
@@ -77,7 +78,7 @@ curl -H "Authorization: Bearer <api_key>" https://api.runpod.ai/v2/<endpoint_id>
 
 You can ether create a new job async by using /run or a sync by using runsync. The example here is using a sync job and waits until the response is delivered. 
 
-The API expects a JSON in this form, where `prompt` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui):
+The API expects a JSON in this form, where `prompt` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui): 
 
 ```json
 {
@@ -88,6 +89,10 @@ The API expects a JSON in this form, where `prompt` is the [workflow from ComfyU
   }
 }
 ```
+
+Please also take a look at the [test_input.json](./test_input.json) to see how the API input should look like. 
+
+#### Example request with cURL
 
 ```bash
 curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"prompt":{"3":{"inputs":{"seed":1337,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, , purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
