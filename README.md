@@ -4,6 +4,7 @@
 
 <!-- toc -->
 
+- [Features](#features)
 - [Config](#config)
   * [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
