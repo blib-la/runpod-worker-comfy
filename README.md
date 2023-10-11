@@ -9,7 +9,8 @@
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
   * [Health status](#health-status)
-  * [Trigger the handler](#trigger-the-handler)
+  * [Generate an image](#generate-an-image)
+- [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
 - [Release](#release)
   * [Config: GitHub Action](#config-github-action)
@@ -76,17 +77,39 @@ curl -H "Authorization: Bearer <api_key>" https://api.runpod.ai/v2/<endpoint_id>
 
 You can ether create a new job async by using /run or a sync by using runsync. The example here is using a sync job and waits until the response is delivered. 
 
-The API expects
+The API expects a JSON in this form, where `prompt` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui):
+
+```json
+{
+  "input": {
+    "prompt": {
+      // ComfyUI workflow
+    }
+  }
+}
+```
 
 ```bash
-curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"prompt":{"prompt":{"3":{"inputs":{"seed":123123123123123,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, , purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
+curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"prompt":{"3":{"inputs":{"seed":1337,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, , purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
 
+# Response
 # {"delayTime":2188,"executionTime":2297,"id":"sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1","output":{"message":"https://bucket.s3.region.amazonaws.com/10-23/sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1/c67ad621.png","status":"success"},"status":"COMPLETED"}
 ```
 
+## How to get the workflow from ComfyUI?
+
+* Open ComfyUI in the browser
+* Open the `Settings` (gear icon in the top right of the menu)
+* In the dialog that appears configure:
+  * `Enable Dev mode Options`: enable
+  * Close the `Settings`
+* In the menu, click on the `Save (API Format)` button, which will download a file named `workflow_api.json`
+
+You can now take the content of this file and put it into your `prompt` when interacting with the API. 
+
 ## Build the image
 
-- You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:1.0.0 .`
+You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:1.0.0 .`
 
 ## Release
 
@@ -107,10 +130,9 @@ This is only relevant if you want to publish the image to Docker Hub via a GitHu
 
 * Make sure you have Python >= 3.10
 * Install the dependencies: `pip install -r requirements.txt`
+* Then you can run the handler: `python src/rp_handler.py`
 
-Then you can run the handler: `python src/rp_handler.py`
-
-If you want to run the Docker container, then you can use: `docker-compose up`
+If you want to run the Docker container, you can use: `docker-compose up`
 
 Both will use the data from [test_input.json](./test_input.json).
 
