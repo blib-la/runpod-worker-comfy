@@ -2,14 +2,16 @@
 
 > [ComfyUI](https://github.com/comfyanonymous/ComfyUI) as a serverless API on [RunPod](https://www.runpod.io/)
 
-<center>
+<p align="center">
   <img src="assets/worker_sitting_in_comfy_chair.jpg" title="Worker sitting in comfy chair" />
-</center>
+</p>
+
 
 ---
 
 <!-- toc -->
 
+- [Quickstart](#quickstart)
 - [Features](#features)
 - [Config](#config)
   * [Upload image to AWS S3](#upload-image-to-aws-s3)
