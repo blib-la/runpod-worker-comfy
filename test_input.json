@@ -1,64 +1,62 @@
 {
   "input": {
     "prompt": {
-      "prompt": {
-        "3": {
-          "inputs": {
-            "seed": 123123123123123,
-            "steps": 20,
-            "cfg": 8,
-            "sampler_name": "euler",
-            "scheduler": "normal",
-            "denoise": 1,
-            "model": ["4", 0],
-            "positive": ["6", 0],
-            "negative": ["7", 0],
-            "latent_image": ["5", 0]
-          },
-          "class_type": "KSampler"
+      "3": {
+        "inputs": {
+          "seed": 123123123123123,
+          "steps": 20,
+          "cfg": 8,
+          "sampler_name": "euler",
+          "scheduler": "normal",
+          "denoise": 1,
+          "model": ["4", 0],
+          "positive": ["6", 0],
+          "negative": ["7", 0],
+          "latent_image": ["5", 0]
         },
-        "4": {
-          "inputs": {
-            "ckpt_name": "sd_xl_base_1.0.safetensors"
-          },
-          "class_type": "CheckpointLoaderSimple"
+        "class_type": "KSampler"
+      },
+      "4": {
+        "inputs": {
+          "ckpt_name": "sd_xl_base_1.0.safetensors"
         },
-        "5": {
-          "inputs": {
-            "width": 512,
-            "height": 512,
-            "batch_size": 1
-          },
-          "class_type": "EmptyLatentImage"
+        "class_type": "CheckpointLoaderSimple"
+      },
+      "5": {
+        "inputs": {
+          "width": 512,
+          "height": 512,
+          "batch_size": 1
         },
-        "6": {
-          "inputs": {
-            "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
-            "clip": ["4", 1]
-          },
-          "class_type": "CLIPTextEncode"
+        "class_type": "EmptyLatentImage"
+      },
+      "6": {
+        "inputs": {
+          "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
+          "clip": ["4", 1]
         },
-        "7": {
-          "inputs": {
-            "text": "text, watermark",
-            "clip": ["4", 1]
-          },
-          "class_type": "CLIPTextEncode"
+        "class_type": "CLIPTextEncode"
+      },
+      "7": {
+        "inputs": {
+          "text": "text, watermark",
+          "clip": ["4", 1]
         },
-        "8": {
-          "inputs": {
-            "samples": ["3", 0],
-            "vae": ["4", 2]
-          },
-          "class_type": "VAEDecode"
+        "class_type": "CLIPTextEncode"
+      },
+      "8": {
+        "inputs": {
+          "samples": ["3", 0],
+          "vae": ["4", 2]
         },
-        "9": {
-          "inputs": {
-            "filename_prefix": "ComfyUI",
-            "images": ["8", 0]
-          },
-          "class_type": "SaveImage"
-        }
+        "class_type": "VAEDecode"
+      },
+      "9": {
+        "inputs": {
+          "filename_prefix": "ComfyUI",
+          "images": ["8", 0]
+        },
+        "class_type": "SaveImage"
       }
     }
   }
