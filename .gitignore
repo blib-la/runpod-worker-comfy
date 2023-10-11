@@ -2,3 +2,4 @@
 venv
 .env
 data
+models
