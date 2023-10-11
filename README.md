@@ -30,7 +30,7 @@ This worker is using Ubuntu with CUDA drivers as it's base. It setups ComfyUI an
 
 | Environment Variable       | Description                                             | Example                                    |
 | -------------------------- | ------------------------------------------------------- | ------------------------------------------ |
-| `BUCKET_ENDPOINT_URL`      | The endpoint URL of your S3 bucket.                     | `https://s3.amazonaws.com`                 |
+| `BUCKET_ENDPOINT_URL`      | The endpoint URL of your S3 bucket.                     | `https://bucket.s3.region.amazonaws.com`   |
 | `BUCKET_ACCESS_KEY_ID`     | Your AWS access key ID for accessing the S3 bucket.     | `AKIAIOSFODNN7EXAMPLE`                     |
 | `BUCKET_SECRET_ACCESS_KEY` | Your AWS secret access key for accessing the S3 bucket. | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
 
