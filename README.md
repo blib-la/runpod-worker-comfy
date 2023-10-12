@@ -22,10 +22,9 @@
     + [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
-- [Release](#release)
-  * [Config: GitHub Action](#config-github-action)
 - [Local testing](#local-testing)
   * [Test setup for Windows](#test-setup-for-windows)
+- [Automatically deploy to Docker hub with Github Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgements](#acknowledgements)
 
 <!-- tocstop -->
@@ -34,9 +33,9 @@
 
 ## Quickstart
 
-🐳 Use the latest image for your worker: [timpietruskyblibla/runpod-worker-comfy:1.0.0](https://hub.docker.com/r/timpietruskyblibla/runpod-worker-comfy)
-
-ℹ️ Need more details? Then let's check out: [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
+- 🐳 Use the latest image for your worker: [timpietruskyblibla/runpod-worker-comfy:latest](https://hub.docker.com/r/timpietruskyblibla/runpod-worker-comfy)
+- ⚙️ [Set the environment variables](#config)
+- ℹ️ [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 
 ## Features
 
@@ -62,7 +61,7 @@
 * Create a [new template](https://runpod.io/console/serverless/user/templates) by clicking on `New Template` 
 * In the dialog, configure:
   * Template Name: `runpod-worker-comfy` (it can be anything you want)
-  * Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:1.0.0` (or `dev` if you want to have the latest, unreleased version)
+  * Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:latest` (or `dev` if you want to have the development release)
   * Container Registry Credentials: You can leave everything as it is, as this repo is public
   * Container Disk: `20 GB`
   * Enviroment Variables: [Configure S3](#upload-image-to-aws-s3)
@@ -136,22 +135,7 @@ You can now take the content of this file and put it into your `prompt` when int
 
 ## Build the image
 
-You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:1.0.0 .`
-
-## Release
-
-There are two workflows, one creates a dev release and the other one creates an actual release, based on the tags created on GitHub
-
-### Config: GitHub Action
-
-This is only relevant if you want to publish the image to Docker Hub via a GitHub action.
-
-| Configuration Variable | Description                                                  | Example Value         |
-| ---------------------- | ------------------------------------------------------------ | --------------------- |
-| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                                    | `your-username`       |
-| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
-| `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
-| `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
+You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev .`
 
 ## Local testing
 
@@ -182,6 +166,23 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
   - For the step "Install the appropriate Windows vGPU driver for WSL": If you already have your GPU driver installed on Windows, you can skip this
 
 - Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
+
+
+## Automatically deploy to Docker hub with Github Actions
+
+The repo contains two workflows that publishes the image to Docker hub using Github Actions:
+
+* [docker-dev.yml](.github/workflows/docker-dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
+* [docker-release.yml](.github/workflows/docker-release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
+
+If you want to use this, you should add these secrets to your repository:
+
+| Configuration Variable | Description                                                  | Example Value         |
+| ---------------------- | ------------------------------------------------------------ | --------------------- |
+| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                                    | `your-username`       |
+| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
+| `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
+| `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
 
 ## Acknowledgements
 
