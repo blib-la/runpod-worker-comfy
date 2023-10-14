@@ -6,6 +6,7 @@ import urllib.parse
 import time
 import os
 import requests
+import base64
 
 # Time to wait between API check attempts in milliseconds
 COMFY_API_AVAILABLE_INTERVAL_MS = 50
@@ -82,6 +83,15 @@ def get_history(prompt_id):
     with urllib.request.urlopen(f"http://{COMFY_HOST}/history/{prompt_id}") as response:
         return json.loads(response.read())
 
+
+def base64_encode(img_path):
+    """
+    Returns base64 encoded image.
+    """
+    with open(img_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+        return encoded_string.decode("utf-8")
+    
 
 def handler(job):
     """
@@ -160,18 +170,23 @@ def handler(job):
 
     print(f"runpod-worker-comfy - image generation is done")
 
+    # expected image output folder
+    local_image_path = f"{COMFY_OUTPUT_PATH}/{output_images}"
     # The image is in the output folder
-    if os.path.exists(f"{COMFY_OUTPUT_PATH}/{output_images}"):
+    if os.path.exists(local_image_path):
         print("runpod-worker-comfy - the image exists in the output folder")
-        image_url = rp_upload.upload_image(
-            job["id"], f"{COMFY_OUTPUT_PATH}/{output_images}"
-        )
-        return {"status": "success", "message": f"{image_url}"}
+        image_url = rp_upload.upload_image(job["id"], local_image_path)
+        return_base64 = "simulated_uploaded/" in image_url
+        return_output = f"{image_url}" if not return_base64 else base64_encode(local_image_path)
+        return {
+            "status": "success", 
+            "message": return_output, 
+        }
     else:
         print("runpod-worker-comfy - the image does not exist in the output folder")
         return {
             "status": "error",
-            "message": f"the image does not exist in the specified output folder: {COMFY_OUTPUT_PATH}/{output_images}",
+            "message": f"the image does not exist in the specified output folder: {local_image_path}",
         }
 
 
