@@ -167,16 +167,6 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
 
 - Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
 
-
-## Include custom models/nodes in image: 
-Edit the Dockerfile to include your custom models/nodes by uncommenting the line below; 
-```Dockerfile
-# ADD custom/models models/
-# ADD custom/nodes custom_nodes/
-```
-This will mount all files within your local project directories custom/models and custom/nodes into the correct folders within the dockerized comfyui application allowing them to be loaded and utilized during your comfy workflow. :heart:
-
-
 ## Automatically deploy to Docker hub with Github Actions
 
 The repo contains two workflows that publishes the image to Docker hub using Github Actions:

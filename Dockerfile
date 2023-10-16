@@ -40,11 +40,6 @@ RUN wget -O models/checkpoints/sdxl_vae.safetensors https://huggingface.co/stabi
 # ADD models/checkpoints/sd_xl_base_1.0.safetensors models/checkpoints/
 # ADD models/checkpoints/sdxl_vae.safetensors models/checkpoints/
 
-# # Example for including folders of models && custom nodes into image
-# ADD custom/models models/
-# ADD custom/nodes custom_nodes/
-
-
 # Go back to the root
 WORKDIR /
 
