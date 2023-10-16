@@ -40,7 +40,7 @@
 ## Features
 
 * Run any [ComfyUI](https://github.com/comfyanonymous/ComfyUI) workflow to generate an image
-* Generated images are uploaded to AWS S3
+* Generated images are uploaded to AWS S3 (or returned as base64 if no bucket set)
 * Build-in checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
 * Build-in VAE: [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
 * Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
@@ -166,7 +166,6 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
   - For the step "Install the appropriate Windows vGPU driver for WSL": If you already have your GPU driver installed on Windows, you can skip this
 
 - Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
-
 
 ## Automatically deploy to Docker hub with Github Actions
 
