@@ -34,11 +34,11 @@ RUN pip3 install runpod requests
 
 # Download models to include in image. (not required if including other models below)
 RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
-RUN wget -O models/checkpoints/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
+RUN wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors
 
 # # Example for adding specific models into image
 # ADD models/checkpoints/sd_xl_base_1.0.safetensors models/checkpoints/
-# ADD models/checkpoints/sdxl_vae.safetensors models/checkpoints/
+# ADD models/vae/sdxl_vae.safetensors models/vae/
 
 # Go back to the root
 WORKDIR /
