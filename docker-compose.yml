@@ -11,3 +11,4 @@ services:
     runtime: nvidia
     volumes:
       - ./data/comfyui/output:/comfyui/output
+      - ./data/runpod-volume:/runpod-volume
