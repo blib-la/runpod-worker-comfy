@@ -3,3 +3,5 @@ venv
 .env
 data
 models
+simulated_uploaded
+__pycache__
