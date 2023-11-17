@@ -229,7 +229,7 @@ def handler(job):
         return {"error": f"Error waiting for image generation: {str(e)}"}
 
     # Get the generated image and return it as URL in an AWS bucket or as base64
-    process_output_images(history[prompt_id].get("outputs"), job[id])
+    return process_output_images(history[prompt_id].get("outputs"), job["id"])
 
 
 # Start the handler only if this script is run directly
