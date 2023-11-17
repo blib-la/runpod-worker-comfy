@@ -3,7 +3,7 @@
     "prompt": {
       "3": {
         "inputs": {
-          "seed": 123123123123123,
+          "seed": 234234,
           "steps": 20,
           "cfg": 8,
           "sampler_name": "euler",
@@ -32,7 +32,7 @@
       },
       "6": {
         "inputs": {
-          "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
+          "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle,",
           "clip": ["4", 1]
         },
         "class_type": "CLIPTextEncode"
