@@ -154,7 +154,9 @@ You can now take the content of this file and put it into your `prompt` when int
 
 ## Build the image
 
-You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev .`
+You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
+
+🚨 It's important to specify the `--platform linux/amd64`, otherwise you will get an error on RunPod, see [#13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
 
 ## Local testing
 
