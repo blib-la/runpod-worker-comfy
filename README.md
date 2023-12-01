@@ -164,6 +164,7 @@ Both tests will use the data from [test_input.json](./test_input.json), so make 
 
 - Make sure you have Python >= 3.10
 - Create a virtual environment: `python -m venv venv`
+- Activate the virtual environment: `.\venv\Scripts\activate` (Windows) or `source ./venv/bin/activate` (Mac / Linux)
 - Install the dependencies: `pip install -r requirements.txt`
 
 #### Setup for Windows
@@ -185,10 +186,6 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
   - For the step "Install the appropriate Windows vGPU driver for WSL": If you already have your GPU driver installed on Windows, you can skip this
 
 - Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
-
-### Activate virtual env
-
-`.\venv\Scripts\activate`
 
 ### Test: handler
 
