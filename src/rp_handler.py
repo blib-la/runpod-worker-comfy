@@ -7,6 +7,7 @@ import time
 import os
 import requests
 import base64
+from io import BytesIO
 
 # Time to wait between API check attempts in milliseconds
 COMFY_API_AVAILABLE_INTERVAL_MS = 50
@@ -15,9 +16,55 @@ COMFY_API_AVAILABLE_MAX_RETRIES = 500
 # Time to wait between poll attempts in milliseconds
 COMFY_POLLING_INTERVAL_MS = 250
 # Maximum number of poll attempts
-COMFY_POLLING_MAX_RETRIES = 100
+COMFY_POLLING_MAX_RETRIES = 500
 # Host where ComfyUI is running
 COMFY_HOST = "127.0.0.1:8188"
+# Enforce a clean state after each job is done
+# see https://docs.runpod.io/docs/handler-additional-controls#refresh-worker
+REFRESH_WORKER = os.environ.get("REFRESH_WORKER", "false").lower() == "true"
+
+
+def validate_input(job_input):
+    """
+    Validates the input for the handler function.
+
+    Args:
+        job_input (dict): The input data to validate.
+
+    Returns:
+        tuple: A tuple containing the validated data and an error message, if any.
+               The structure is (validated_data, error_message).
+    """
+    # Validate if job_input is provided
+    if job_input is None:
+        return None, "Please provide input"
+
+    # Check if input is a string and try to parse it as JSON
+    if isinstance(job_input, str):
+        try:
+            job_input = json.loads(job_input)
+        except json.JSONDecodeError:
+            return None, "Invalid JSON format in input"
+
+    # Validate 'workflow' in input
+    workflow = job_input.get("workflow")
+    if workflow is None:
+        return None, "Missing 'workflow' parameter"
+
+    # Validate 'images' in input, if provided
+    images = job_input.get("images")
+    if images is not None:
+        if not isinstance(images, list) or not all(
+            "name" in image and "image" in image for image in images
+        ):
+            return (
+                None,
+                "'images' must be a list of objects with 'name' and 'image' keys",
+            )
+
+    # Return validated data and no error
+    return {"workflow": workflow, "images": images}, None
+
 
 def check_server(url, retries=50, delay=500):
     """
@@ -53,17 +100,73 @@ def check_server(url, retries=50, delay=500):
     return False
 
 
-def queue_prompt(prompt):
+def upload_images(images):
     """
-    Queue a prompt to be processed by ComfyUI
+    Upload a list of base64 encoded images to the ComfyUI server using the /upload/image endpoint.
 
     Args:
-        prompt (dict): A dictionary containing the prompt to be processed
+        images (list): A list of dictionaries, each containing the 'name' of the image and the 'image' as a base64 encoded string.
+        server_address (str): The address of the ComfyUI server.
 
     Returns:
-        dict: The JSON response from ComfyUI after processing the prompt
+        list: A list of responses from the server for each image upload.
     """
-    data = json.dumps(prompt).encode("utf-8")
+    if not images:
+        return {"status": "success", "message": "No images to upload", "details": []}
+
+    responses = []
+    upload_errors = []
+
+    print(f"runpod-worker-comfy - image(s) upload")
+
+    for image in images:
+        name = image["name"]
+        image_data = image["image"]
+        blob = base64.b64decode(image_data)
+
+        # Prepare the form data
+        files = {
+            "image": (name, BytesIO(blob), "image/png"),
+            "overwrite": (None, "true"),
+        }
+
+        # POST request to upload the image
+        response = requests.post(f"http://{COMFY_HOST}/upload/image", files=files)
+        if response.status_code != 200:
+            upload_errors.append(f"Error uploading {name}: {response.text}")
+        else:
+            responses.append(f"Successfully uploaded {name}")
+
+    if upload_errors:
+        print(f"runpod-worker-comfy - image(s) upload with errors")
+        return {
+            "status": "error",
+            "message": "Some images failed to upload",
+            "details": upload_errors,
+        }
+
+    print(f"runpod-worker-comfy - image(s) upload complete")
+    return {
+        "status": "success",
+        "message": "All images uploaded successfully",
+        "details": responses,
+    }
+
+
+def queue_workflow(workflow):
+    """
+    Queue a workflow to be processed by ComfyUI
+
+    Args:
+        workflow (dict): A dictionary containing the workflow to be processed
+
+    Returns:
+        dict: The JSON response from ComfyUI after processing the workflow
+    """
+
+    # The top level element "prompt" is required by ComfyUI
+    data = json.dumps({"prompt": workflow}).encode("utf-8")
+
     req = urllib.request.Request(f"http://{COMFY_HOST}/prompt", data=data)
     return json.loads(urllib.request.urlopen(req).read())
 
@@ -94,8 +197,9 @@ def base64_encode(img_path):
     """
     with open(img_path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
-        return f"data:image/png;base64,{encoded_string}"
-    
+        return f"{encoded_string}"
+
+
 def process_output_images(outputs, job_id):
     """
     This function takes the "outputs" from image generation and the job ID,
@@ -126,7 +230,7 @@ def process_output_images(outputs, job_id):
     """
 
     # The path where ComfyUI stores the generated images
-    COMFY_OUTPUT_PATH = os.environ.get('COMFY_OUTPUT_PATH', "/comfyui/output")
+    COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/comfyui/output")
 
     output_images = {}
 
@@ -140,20 +244,26 @@ def process_output_images(outputs, job_id):
     # expected image output folder
     local_image_path = f"{COMFY_OUTPUT_PATH}/{output_images}"
 
+    print(f"runpod-worker-comfy - {local_image_path}")
+
     # The image is in the output folder
     if os.path.exists(local_image_path):
-        print("runpod-worker-comfy - the image exists in the output folder")
-
-        if os.environ.get('BUCKET_ENDPOINT_URL', False):
+        if os.environ.get("BUCKET_ENDPOINT_URL", False):
             # URL to image in AWS S3
             image = rp_upload.upload_image(job_id, local_image_path)
+            print(
+                "runpod-worker-comfy - the image was generated and uploaded to AWS S3"
+            )
         else:
             # base64 image
             image = base64_encode(local_image_path)
+            print(
+                "runpod-worker-comfy - the image was generated and converted to base64"
+            )
 
         return {
-            "status": "success", 
-            "message": image, 
+            "status": "success",
+            "message": image,
         }
     else:
         print("runpod-worker-comfy - the image does not exist in the output folder")
@@ -161,7 +271,7 @@ def process_output_images(outputs, job_id):
             "status": "error",
             "message": f"the image does not exist in the specified output folder: {local_image_path}",
         }
-    
+
 
 def handler(job):
     """
@@ -178,6 +288,15 @@ def handler(job):
     """
     job_input = job["input"]
 
+    # Make sure that the input is valid
+    validated_data, error_message = validate_input(job_input)
+    if error_message:
+        return {"error": error_message}
+
+    # Extract validated data
+    workflow = validated_data["workflow"]
+    images = validated_data.get("images")
+
     # Make sure that the ComfyUI API is available
     check_server(
         f"http://{COMFY_HOST}",
@@ -185,29 +304,19 @@ def handler(job):
         COMFY_API_AVAILABLE_INTERVAL_MS,
     )
 
-    # Validate input
-    if job_input is None:
-        return {"error": "Please provide the 'prompt'"}
+    # Upload images if they exist
+    upload_result = upload_images(images)
 
-    # Is JSON?
-    if isinstance(job_input, dict):
-        prompt = job_input
-    # Is String?
-    elif isinstance(job_input, str):
-        try:
-            prompt = json.loads(job_input)
-        except json.JSONDecodeError:
-            return {"error": "Invalid JSON format in 'prompt'"}
-    else:
-        return {"error": "'prompt' must be a JSON object or a JSON-encoded string"}
+    if upload_result["status"] == "error":
+        return upload_result
 
-    # Queue the prompt
+    # Queue the workflow
     try:
-        queued_prompt = queue_prompt(prompt)
-        prompt_id = queued_prompt["prompt_id"]
-        print(f"runpod-worker-comfy - queued prompt with ID {prompt_id}")
+        queued_workflow = queue_workflow(workflow)
+        prompt_id = queued_workflow["prompt_id"]
+        print(f"runpod-worker-comfy - queued workflow with ID {prompt_id}")
     except Exception as e:
-        return {"error": f"Error queuing prompt: {str(e)}"}
+        return {"error": f"Error queuing workflow: {str(e)}"}
 
     # Poll for completion
     print(f"runpod-worker-comfy - wait until image generation is complete")
@@ -229,7 +338,11 @@ def handler(job):
         return {"error": f"Error waiting for image generation: {str(e)}"}
 
     # Get the generated image and return it as URL in an AWS bucket or as base64
-    return process_output_images(history[prompt_id].get("outputs"), job["id"])
+    images_result = process_output_images(history[prompt_id].get("outputs"), job["id"])
+
+    result = {**images_result, "refresh_worker": REFRESH_WORKER}
+
+    return result
 
 
 # Start the handler only if this script is run directly

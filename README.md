@@ -15,6 +15,10 @@
 - [Config](#config)
   * [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
+- [API specification](#api-specification)
+  * [JSON Payload Structure](#json-payload-structure)
+  * [Fields](#fields)
+    + ["input.images" details](#inputimages-details)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
   * [Health status](#health-status)
   * [Generate an image](#generate-an-image)
@@ -24,7 +28,6 @@
 - [Local testing](#local-testing)
   * [Setup](#setup)
     + [Setup for Windows](#setup-for-windows)
-  * [Activate virtual env](#activate-virtual-env)
   * [Test: handler](#test-handler)
   * [Test: docker image](#test-docker-image)
 - [Automatically deploy to Docker hub with Github Actions](#automatically-deploy-to-docker-hub-with-github-actions)
@@ -43,6 +46,7 @@
 ## Features
 
 - Run any [ComfyUI](https://github.com/comfyanonymous/ComfyUI) workflow to generate an image
+- Provide input images as base64-encoded string
 - Generated image is either:
   - Returned as base64-encoded string (default)
   - Uploaded to AWS S3 ([if AWS S3 is configured](#upload-image-to-aws-s3))
@@ -56,6 +60,10 @@
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
+
+| Environment Variable | Description                                                                  | Default |
+| -------------------- | ---------------------------------------------------------------------------- | ------- |
+| `REFRESH_WORKER`     | When you want stop the worker after each finished job to have a clean state. | `false` |
 
 ### Upload image to AWS S3
 
@@ -97,6 +105,44 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 - Click `deploy`
 - Your endpoint will be created, you can click on it to see the dashboard
 
+## API specification
+
+The following is the required structure and format for requests made to the API. 
+
+### JSON Payload Structure
+
+```json
+{
+  "input": {
+    "workflow": {},
+    "images": [
+      {
+        "name": "example_image_name.png",
+        "image": "base64_encoded_string"
+      }
+    ]
+  }
+}
+```
+
+### Fields
+
+| Field Path       | Type   | Required | Description                                       |
+| ---------------- | ------ | -------- | ------------------------------------------------- |
+| `input`          | Object | Yes      | The top-level object containing the request data. |
+| `input.workflow` | Object | Yes      | Contains the ComfyUI workflow configuration.      |
+| `input.images`   | Array  | No       | An array of images.                               |
+
+
+#### "input.images" details
+
+| Field Name | Type   | Required | Description                                                                              |
+| ---------- | ------ | -------- | ---------------------------------------------------------------------------------------- |
+| `name`     | String | No       | The name of the image. Please use the same name in your workflow to reference the image. |
+| `image`    | String | No       | A base64 encoded string of the image.                                                    |
+
+
+
 ## Interact with your RunPod API
 
 - In the [User Settings](https://www.runpod.io/console/serverless/user/settings) click on `API Keys` and then on the `API Key` button
@@ -104,6 +150,8 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 - Use cURL or any other tool to access the API using the API key and your Endpoint-ID:
   - Replace `<api_key>` with your key
   - Replace `<endpoint_id>` with the ID of the endpoint, you find that when you click on your endpoint, it's part of the URLs shown at the bottom of the first box
+
+
 
 ### Health status
 
@@ -113,16 +161,16 @@ curl -H "Authorization: Bearer <api_key>" https://api.runpod.ai/v2/<endpoint_id>
 
 ### Generate an image
 
-You can ether create a new job async by using /run or a sync by using runsync. The example here is using a sync job and waits until the response is delivered.
+You can either create a new job async by using `/run` or a sync by using runsync. The example here is using a sync job and waits until the response is delivered.
 
-The API expects a JSON in this form, where `prompt` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui):
+The API expects a JSON in this form, where `workflow` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui):
 
 ```json
 {
   "input": {
-    "prompt": {
+    "workflow": {
       // ComfyUI workflow
-    }
+    },
   }
 }
 ```
@@ -132,7 +180,7 @@ Please also take a look at the [test_input.json](./test_input.json) to see how t
 #### Example request with cURL
 
 ```bash
-curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"prompt":{"3":{"inputs":{"seed":1337,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, , purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
+curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"workflow":{"3":{"inputs":{"seed":1337,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, , purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
 
 # Response with AWS S3 bucket configuration
 # {"delayTime":2188,"executionTime":2297,"id":"sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1","output":{"message":"https://bucket.s3.region.amazonaws.com/10-23/sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1/c67ad621.png","status":"success"},"status":"COMPLETED"}
@@ -150,7 +198,7 @@ curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/
   - Close the `Settings`
 - In the menu, click on the `Save (API Format)` button, which will download a file named `workflow_api.json`
 
-You can now take the content of this file and put it into your `prompt` when interacting with the API.
+You can now take the content of this file and put it into your `workflow` when interacting with the API.
 
 ## Build the image
 
@@ -166,6 +214,7 @@ Both tests will use the data from [test_input.json](./test_input.json), so make 
 
 - Make sure you have Python >= 3.10
 - Create a virtual environment: `python -m venv venv`
+- Activate the virtual environment: `.\venv\Scripts\activate` (Windows) or `source ./venv/bin/activate` (Mac / Linux)
 - Install the dependencies: `pip install -r requirements.txt`
 
 #### Setup for Windows
@@ -187,10 +236,6 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
   - For the step "Install the appropriate Windows vGPU driver for WSL": If you already have your GPU driver installed on Windows, you can skip this
 
 - Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
-
-### Activate virtual env
-
-`.\venv\Scripts\activate`
 
 ### Test: handler
 
