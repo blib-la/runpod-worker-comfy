@@ -16,9 +16,12 @@ COMFY_API_AVAILABLE_MAX_RETRIES = 500
 # Time to wait between poll attempts in milliseconds
 COMFY_POLLING_INTERVAL_MS = 250
 # Maximum number of poll attempts
-COMFY_POLLING_MAX_RETRIES = 100
+COMFY_POLLING_MAX_RETRIES = 500
 # Host where ComfyUI is running
 COMFY_HOST = "127.0.0.1:8188"
+# Enforce a clean state after each job is done
+# see https://docs.runpod.io/docs/handler-additional-controls#refresh-worker
+REFRESH_WORKER = os.environ.get("REFRESH_WORKER", "false").lower() == "true"
 
 
 def validate_input(job_input):
@@ -160,7 +163,10 @@ def queue_workflow(workflow):
     Returns:
         dict: The JSON response from ComfyUI after processing the workflow
     """
-    data = json.dumps(workflow).encode("utf-8")
+
+    # The top level element "prompt" is required by ComfyUI
+    data = json.dumps({"prompt": workflow}).encode("utf-8")
+
     req = urllib.request.Request(f"http://{COMFY_HOST}/prompt", data=data)
     return json.loads(urllib.request.urlopen(req).read())
 
@@ -191,7 +197,7 @@ def base64_encode(img_path):
     """
     with open(img_path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
-        return f"data:image/png;base64,{encoded_string}"
+        return f"{encoded_string}"
 
 
 def process_output_images(outputs, job_id):
@@ -238,16 +244,22 @@ def process_output_images(outputs, job_id):
     # expected image output folder
     local_image_path = f"{COMFY_OUTPUT_PATH}/{output_images}"
 
+    print(f"runpod-worker-comfy - {local_image_path}")
+
     # The image is in the output folder
     if os.path.exists(local_image_path):
-        print("runpod-worker-comfy - the image exists in the output folder")
-
         if os.environ.get("BUCKET_ENDPOINT_URL", False):
             # URL to image in AWS S3
             image = rp_upload.upload_image(job_id, local_image_path)
+            print(
+                "runpod-worker-comfy - the image was generated and uploaded to AWS S3"
+            )
         else:
             # base64 image
             image = base64_encode(local_image_path)
+            print(
+                "runpod-worker-comfy - the image was generated and converted to base64"
+            )
 
         return {
             "status": "success",
@@ -326,7 +338,11 @@ def handler(job):
         return {"error": f"Error waiting for image generation: {str(e)}"}
 
     # Get the generated image and return it as URL in an AWS bucket or as base64
-    return process_output_images(history[prompt_id].get("outputs"), job["id"])
+    images_result = process_output_images(history[prompt_id].get("outputs"), job["id"])
+
+    result = {**images_result, "refresh_worker": REFRESH_WORKER}
+
+    return result
 
 
 # Start the handler only if this script is run directly

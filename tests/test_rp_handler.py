@@ -116,8 +116,11 @@ class TestRunpodWorkerComfy(unittest.TestCase):
 
     @patch("builtins.open", new_callable=mock_open, read_data=b"test")
     def test_base64_encode(self, mock_file):
+        test_data = base64.b64encode(b"test").decode("utf-8")
+
         result = rp_handler.base64_encode("dummy_path")
-        self.assertTrue(result.startswith("data:image/png;base64,"))
+
+        self.assertEqual(result, test_data)
 
     @patch("rp_handler.os.path.exists")
     @patch("rp_handler.rp_upload.upload_image")
@@ -134,7 +137,6 @@ class TestRunpodWorkerComfy(unittest.TestCase):
         result = rp_handler.process_output_images(outputs, job_id)
 
         self.assertEqual(result["status"], "success")
-        self.assertTrue(result["message"].startswith("data:image/png;base64,"))
 
     @patch("rp_handler.os.path.exists")
     @patch("rp_handler.rp_upload.upload_image")
