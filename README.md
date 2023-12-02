@@ -204,6 +204,8 @@ You can now take the content of this file and put it into your `workflow` when i
 
 You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
 
+🚨 It's important to specify the `--platform linux/amd64`, otherwise you will get an error on RunPod, see [#13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
+
 ## Local testing
 
 Both tests will use the data from [test_input.json](./test_input.json), so make your changes in there to test this properly.
