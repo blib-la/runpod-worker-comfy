@@ -61,9 +61,9 @@
 
 ## Config
 
-| Environment Variable | Description                                                                  | Default |
-| -------------------- | ---------------------------------------------------------------------------- | ------- |
-| `REFRESH_WORKER`     | When you want stop the worker after each finished job to have a clean state. | `false` |
+| Environment Variable | Description                                                                                                                                                                        | Default |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `REFRESH_WORKER`     | When you want stop the worker after each finished job to have a clean state, see [official documentation](https://docs.runpod.io/docs/handler-additional-controls#refresh-worker). | `false` |
 
 ### Upload image to AWS S3
 
