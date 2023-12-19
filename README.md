@@ -25,6 +25,7 @@
     + [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
+  * [Bring your own models](#bring-your-own-models)
 - [Local testing](#local-testing)
   * [Setup](#setup)
     + [Setup for Windows](#setup-for-windows)
@@ -57,6 +58,7 @@
   - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
 - Build-in LoRA:
   - [xl_more_art-full_v1.safetensors](https://civitai.com/models/124347?modelVersionId=152309) (Enhancer)
+- Bring your own models using [RunPod Network Volumes](https://docs.runpod.io/docs/create-a-network-volume)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
@@ -99,7 +101,7 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
   - Max Workers: `3` (whatever makes sense for you)
   - Idle Timeout: `5` (you can leave the default)
   - Flash Boot: `enabled` (doesn't cost more, but provides faster boot of our worker, which is good)
-  - Advanced: Leave the defaults
+  - Advanced: If you are using a Network Volume, select it under `Select Network Volume`. Otherwise leave the defaults.
   - Select a GPU that has some availability
   - GPUs/Worker: `1`
 - Click `deploy`
@@ -198,7 +200,31 @@ You can now take the content of this file and put it into your `workflow` when i
 
 You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
 
+If you plan to bring your own ComfyUI models, you can add the SKIP_DEFAULT_MODELS build arg to reduce image size.
+`docker build --build-arg SKIP_DEFAULT_MODELS=1 -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
+This will skip downloading the default models for this image.
+
 🚨 It's important to specify the `--platform linux/amd64`, otherwise you will get an error on RunPod, see [#13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
+
+### Bring your own models
+
+- [Create a Network Volume](https://docs.runpod.io/docs/create-a-network-volume)
+- Create a temporary GPU instance to populate the volume.
+  Navigate to `Manage > Storage`, click `Deploy` under the volume, deploy any GPU instance
+- Navigate to `Manage > Pods`. Under the new GPU instance, click `Connect`. This
+    will give you either a Jupyter notebook where you can select `Shell` or an address you can ssh to.
+- Within a shell on the GPU instance, populate the Network Volume. By default, the volume
+    is mounted at `/workspace`. In this example, we create the ComfyUI model
+    structure and download a single checkpoint.
+    ```
+    cd /workspace
+    for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
+    wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors
+    ```
+- [Delete the temporary GPU instance](https://docs.runpod.io/docs/pods#terminating-a-pod)
+- Configure your Endpoint to use the Network Volume. Either create a new
+    endpoint following [this section](#use-the-docker-image-on-runpod) or update
+    `Advanced > Select Network Volume (optional)` on an existing endpoint
 
 ## Local testing
 
