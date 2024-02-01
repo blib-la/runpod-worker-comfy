@@ -6,6 +6,8 @@
   <img src="assets/worker_sitting_in_comfy_chair.jpg" title="Worker sitting in comfy chair" />
 </p>
 
+Read our article here: https://blib.la/blog/comfyui-on-runpod
+
 ---
 
 <!-- toc -->
