@@ -1,12 +1,13 @@
-name: CD | Dev Docker Image
+name: Development
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - "main"
+      - "dev"
 
 jobs:
-  docker:
+  dev:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,3 +49,5 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:dev
+
+
