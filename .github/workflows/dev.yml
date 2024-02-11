@@ -8,7 +8,7 @@ on:
 
 jobs:
   dev:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -49,5 +49,3 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:dev
-
-
