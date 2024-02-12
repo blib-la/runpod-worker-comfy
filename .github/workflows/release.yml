@@ -1,12 +1,20 @@
-name: CD | Release Docker Image
+name: Release
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
 
 jobs:
-  docker:
+  release:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'chore(release)') }}
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -41,17 +49,34 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Update the ToC in the README.md
+        run: npx markdown-toc README.md -i
+
+      - name: Semantic release
+        uses: codfish/semantic-release-action@v3
+        id: semanticrelease
+        with: 
+          additional-packages: |
+            ['@semantic-release/git', '@semantic-release/changelog']
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image and push it to Docker Hub
+        if: steps.semanticrelease.outputs.new-release-published == 'true'
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ steps.semanticrelease.outputs.release-version }}
             ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:latest
-
-      - name: Docker Hub Description
+  
+      - name: Update description on Docker Hub
+        if: steps.semanticrelease.outputs.new-release-published == 'true'
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}
+  
+
+
