@@ -10,7 +10,6 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 [![Discord](https://img.shields.io/discord/1091306623819059300?color=7289da&label=Discord&logo=discord&logoColor=fff&style=for-the-badge)](https://discord.com/invite/m3TBB9XEkb)
 
-
 ---
 
 <!-- toc -->
@@ -18,23 +17,23 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Quickstart](#quickstart)
 - [Features](#features)
 - [Config](#config)
-  * [Upload image to AWS S3](#upload-image-to-aws-s3)
+  - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 - [API specification](#api-specification)
-  * [JSON Request Body](#json-request-body)
-  * [Fields](#fields)
-    + ["input.images"](#inputimages)
+  - [JSON Request Body](#json-request-body)
+  - [Fields](#fields)
+    - ["input.images"](#inputimages)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
-  * [Health status](#health-status)
-  * [Generate an image](#generate-an-image)
-    + [Example request with cURL](#example-request-with-curl)
+  - [Health status](#health-status)
+  - [Generate an image](#generate-an-image)
+    - [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
 - [Local testing](#local-testing)
-  * [Setup](#setup)
-    + [Setup for Windows](#setup-for-windows)
-  * [Test: handler](#test-handler)
-  * [Test: docker image](#test-docker-image)
+  - [Setup](#setup)
+    - [Setup for Windows](#setup-for-windows)
+  - [Test: handler](#test-handler)
+  - [Test: docker image](#test-docker-image)
 - [Automatically deploy to Docker hub with Github Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgments](#acknowledgments)
 
@@ -112,7 +111,7 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 
 ## API specification
 
-The following describes which fields exist when doing requests to the API. We only describe the fields that are sent via `input` as those are needed by the worker itself. For a full list of fields, please take a look at the [official documentation](https://docs.runpod.io/docs/serverless-usage). 
+The following describes which fields exist when doing requests to the API. We only describe the fields that are sent via `input` as those are needed by the worker itself. For a full list of fields, please take a look at the [official documentation](https://docs.runpod.io/docs/serverless-usage).
 
 ### JSON Request Body
 
@@ -138,10 +137,9 @@ The following describes which fields exist when doing requests to the API. We on
 | `input.workflow` | Object | Yes      | Contains the ComfyUI workflow configuration.                                                                                              |
 | `input.images`   | Array  | No       | An array of images. Each image will be added into the "input"-folder of ComfyUI and can then be used in the workflow by using it's `name` |
 
-
 #### "input.images"
 
-An array of images, where each image should have a different name. 
+An array of images, where each image should have a different name.
 
 🚨 The request body for a RunPod endpoint is 10 MB for `/run` and 20 MB for `/runsync`, so make sure that your input images are not super huge as this will be blocked by RunPod otherwise, see the [official documentation](https://docs.runpod.io/docs/serverless-endpoint-urls)
 
@@ -150,8 +148,6 @@ An array of images, where each image should have a different name.
 | `name`     | String | Yes      | The name of the image. Please use the same name in your workflow to reference the image. |
 | `image`    | String | Yes      | A base64 encoded string of the image.                                                    |
 
-
-
 ## Interact with your RunPod API
 
 - In the [User Settings](https://www.runpod.io/console/serverless/user/settings) click on `API Keys` and then on the `API Key` button
@@ -159,8 +155,6 @@ An array of images, where each image should have a different name.
 - Use cURL or any other tool to access the API using the API key and your Endpoint-ID:
   - Replace `<api_key>` with your key
   - Replace `<endpoint_id>` with the ID of the endpoint, you find that when you click on your endpoint, it's part of the URLs shown at the bottom of the first box
-
-
 
 ### Health status
 
@@ -172,7 +166,7 @@ curl -H "Authorization: Bearer <api_key>" https://api.runpod.ai/v2/<endpoint_id>
 
 You can either create a new job async by using `/run` or a sync by using runsync. The example here is using a sync job and waits until the response is delivered.
 
-The API expects a [JSON in this form](#json-request-body), where `workflow` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui) and `images` is optional. 
+The API expects a [JSON in this form](#json-request-body), where `workflow` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui) and `images` is optional.
 
 Please also take a look at the [test_input.json](./test_input.json) to see how the API input should look like.
 
@@ -244,9 +238,22 @@ To run the Docker image on Windows, we need to have WSL2 and a Linux distro (lik
 You can also start the handler itself to have the local server running: `python src/rp_handler.py`
 To get this to work you will also need to start "ComfyUI", otherwise the handler will not work.
 
-### Test: docker image
+### Local API
 
-- If you want to run the Docker container, you can use: `docker-compose up`
+For enhanced local development, you can start an API server that simulates the RunPod worker environment. This feature is particularly useful for debugging and testing your integrations locally.
+
+#### Starting local endpoint
+
+Set the `SERVE_API_LOCALLY` environment variable to `true` to activate the local API server when running your Docker container. This is already the default value in the `docker-compose.yml`, so you can get it runnig by executing:
+
+```bash
+docker-compose up
+```
+
+#### Accessing the API
+
+- With the local API server running, it's accessible at: [http://localhost:8000](http://localhost:8000)
+- When you open this in your browser, you can also see the API documentation and can interact with the API directly
 
 ## Automatically deploy to Docker hub with Github Actions
 
@@ -263,7 +270,6 @@ If you want to use this, you should add these secrets to your repository:
 | `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
 | `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
 | `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
-
 
 ## Acknowledgments
 
