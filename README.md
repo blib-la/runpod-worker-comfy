@@ -15,6 +15,9 @@
 - [Config](#config)
   * [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
+  * [Bring your own models](#bring-your-own-models)
+    + [Network Volume](#network-volume)
+    + [Custom Docker Image](#custom-docker-image)
 - [API specification](#api-specification)
   * [JSON Request Body](#json-request-body)
   * [Fields](#fields)
@@ -25,7 +28,6 @@
     + [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
-  * [Bring your own models](#bring-your-own-models)
 - [Local testing](#local-testing)
   * [Setup](#setup)
     + [Setup for Windows](#setup-for-windows)
@@ -58,7 +60,7 @@
   - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
 - Build-in LoRA:
   - [xl_more_art-full_v1.safetensors](https://civitai.com/models/124347?modelVersionId=152309) (Enhancer)
-- Bring your own models using [RunPod Network Volumes](https://docs.runpod.io/docs/create-a-network-volume)
+- [Bring your own models](#bring-your-own-models)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
@@ -109,28 +111,41 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 
 ### Bring your own models
 
+#### Network Volume
+
+This is possible because of [RunPod Network Volumes](https://docs.runpod.io/docs/create-a-network-volume), which also works for [serverless](https://docs.runpod.io/serverless/references/endpoint-configurations#select-network-volume).
+
 - [Create a Network Volume](https://docs.runpod.io/docs/create-a-network-volume)
 - Create a temporary GPU instance to populate the volume.
   Navigate to `Manage > Storage`, click `Deploy` under the volume, deploy any GPU instance
 - Navigate to `Manage > Pods`. Under the new GPU instance, click `Connect`. This
-    will give you either a Jupyter notebook where you can select `Shell` or an address you can ssh to.
+  will give you either a Jupyter notebook where you can select `Shell` or an address you can ssh to.
 - Within a shell on the GPU instance, populate the Network Volume. By default, the volume
-    is mounted at `/workspace`. In this example, we create the ComfyUI model
-    structure and download a single checkpoint.
-    ```
-    cd /workspace
-    for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
-    wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors
-    ```
+  is mounted at `/workspace`. In this example, we create the ComfyUI model
+  structure and download a single checkpoint.
+  ```
+  cd /workspace
+  for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
+  wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors
+  ```
 - [Delete the temporary GPU instance](https://docs.runpod.io/docs/pods#terminating-a-pod)
-- Configure your Endpoint to use the Network Volume. Either create a new
-    endpoint following [this section](#use-the-docker-image-on-runpod) or update
-    `Advanced > Select Network Volume (optional)` on an existing endpoint
+- Configure your Endpoint to use the Network Volume. Either [create a new endpoint](#use-the-docker-image-on-runpod) or update
+  `Advanced > Select Network Volume (optional)` on an existing endpoint
 
+#### Custom Docker Image
+
+- Fork the repository
+- Add your models directly into the [Dockerfile](./Dockerfile) like this:
+
+```Dockerfile
+RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+```
+
+- [Build your Docker Image](#build-the-image)
 
 ## API specification
 
-The following describes which fields exist when doing requests to the API. We only describe the fields that are sent via `input` as those are needed by the worker itself. For a full list of fields, please take a look at the [official documentation](https://docs.runpod.io/docs/serverless-usage). 
+The following describes which fields exist when doing requests to the API. We only describe the fields that are sent via `input` as those are needed by the worker itself. For a full list of fields, please take a look at the [official documentation](https://docs.runpod.io/docs/serverless-usage).
 
 ### JSON Request Body
 
@@ -156,10 +171,9 @@ The following describes which fields exist when doing requests to the API. We on
 | `input.workflow` | Object | Yes      | Contains the ComfyUI workflow configuration.                                                                                              |
 | `input.images`   | Array  | No       | An array of images. Each image will be added into the "input"-folder of ComfyUI and can then be used in the workflow by using it's `name` |
 
-
 #### "input.images"
 
-An array of images, where each image should have a different name. 
+An array of images, where each image should have a different name.
 
 🚨 The request body for a RunPod endpoint is 10 MB for `/run` and 20 MB for `/runsync`, so make sure that your input images are not super huge as this will be blocked by RunPod otherwise, see the [official documentation](https://docs.runpod.io/docs/serverless-endpoint-urls)
 
@@ -168,8 +182,6 @@ An array of images, where each image should have a different name.
 | `name`     | String | Yes      | The name of the image. Please use the same name in your workflow to reference the image. |
 | `image`    | String | Yes      | A base64 encoded string of the image.                                                    |
 
-
-
 ## Interact with your RunPod API
 
 - In the [User Settings](https://www.runpod.io/console/serverless/user/settings) click on `API Keys` and then on the `API Key` button
@@ -177,8 +189,6 @@ An array of images, where each image should have a different name.
 - Use cURL or any other tool to access the API using the API key and your Endpoint-ID:
   - Replace `<api_key>` with your key
   - Replace `<endpoint_id>` with the ID of the endpoint, you find that when you click on your endpoint, it's part of the URLs shown at the bottom of the first box
-
-
 
 ### Health status
 
@@ -190,7 +200,7 @@ curl -H "Authorization: Bearer <api_key>" https://api.runpod.ai/v2/<endpoint_id>
 
 You can either create a new job async by using `/run` or a sync by using runsync. The example here is using a sync job and waits until the response is delivered.
 
-The API expects a [JSON in this form](#json-request-body), where `workflow` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui) and `images` is optional. 
+The API expects a [JSON in this form](#json-request-body), where `workflow` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui) and `images` is optional.
 
 Please also take a look at the [test_input.json](./test_input.json) to see how the API input should look like.
 
@@ -221,7 +231,7 @@ You can now take the content of this file and put it into your `workflow` when i
 
 You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
 
-If you plan to bring your own ComfyUI models, you can add the SKIP_DEFAULT_MODELS build arg to reduce image size:
+If you plan to bring your own ComfyUI models, you can add the `SKIP_DEFAULT_MODELS` build arg to reduce image size:
 `docker build --build-arg SKIP_DEFAULT_MODELS=1 -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`.
 This will skip downloading the default models for this image.
 
@@ -285,7 +295,6 @@ If you want to use this, you should add these secrets to your repository:
 | `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
 | `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
 | `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
-
 
 ## Acknowledgments
 
