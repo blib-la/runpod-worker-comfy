@@ -39,6 +39,7 @@ RUN if [ -z "$SKIP_DEFAULT_MODELS" ]; then wget -O models/vae/sdxl_vae.safetenso
 RUN if [ -z "$SKIP_DEFAULT_MODELS" ]; then wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors; fi
 RUN if [ -z "$SKIP_DEFAULT_MODELS" ]; then wget -O models/loras/xl_more_art-full_v1.safetensors https://civitai.com/api/download/models/152309; fi
 
+# Support for the network volume
 ADD src/extra_model_paths.yaml ./
 
 # Go back to the root
