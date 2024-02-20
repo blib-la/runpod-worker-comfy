@@ -19,6 +19,9 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Config](#config)
   - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
+  * [Bring your own models](#bring-your-own-models)
+    + [Network Volume](#network-volume)
+    + [Custom Docker Image](#custom-docker-image)
 - [API specification](#api-specification)
   - [JSON Request Body](#json-request-body)
   - [Fields](#fields)
@@ -61,6 +64,7 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
   - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
 - Build-in LoRA:
   - [xl_more_art-full_v1.safetensors](https://civitai.com/models/124347?modelVersionId=152309) (Enhancer)
+- [Bring your own models](#bring-your-own-models)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
@@ -103,11 +107,45 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
   - Max Workers: `3` (whatever makes sense for you)
   - Idle Timeout: `5` (you can leave the default)
   - Flash Boot: `enabled` (doesn't cost more, but provides faster boot of our worker, which is good)
-  - Advanced: Leave the defaults
+  - Advanced: If you are using a Network Volume, select it under `Select Network Volume`. Otherwise leave the defaults.
   - Select a GPU that has some availability
   - GPUs/Worker: `1`
 - Click `deploy`
 - Your endpoint will be created, you can click on it to see the dashboard
+
+### Bring your own models
+
+#### Network Volume
+
+This is possible because of [RunPod Network Volumes](https://docs.runpod.io/docs/create-a-network-volume), which also works for [serverless](https://docs.runpod.io/serverless/references/endpoint-configurations#select-network-volume).
+
+- [Create a Network Volume](https://docs.runpod.io/docs/create-a-network-volume)
+- Create a temporary GPU instance to populate the volume.
+  Navigate to `Manage > Storage`, click `Deploy` under the volume, deploy any GPU instance
+- Navigate to `Manage > Pods`. Under the new GPU instance, click `Connect`. This
+  will give you either a Jupyter notebook where you can select `Shell` or an address you can ssh to.
+- Within a shell on the GPU instance, populate the Network Volume. By default, the volume
+  is mounted at `/workspace`. In this example, we create the ComfyUI model
+  structure and download a single checkpoint.
+  ```
+  cd /workspace
+  for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
+  wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors
+  ```
+- [Delete the temporary GPU instance](https://docs.runpod.io/docs/pods#terminating-a-pod)
+- Configure your Endpoint to use the Network Volume. Either [create a new endpoint](#use-the-docker-image-on-runpod) or update
+  `Advanced > Select Network Volume (optional)` on an existing endpoint
+
+#### Custom Docker Image
+
+- Fork the repository
+- Add your models directly into the [Dockerfile](./Dockerfile) like this:
+
+```Dockerfile
+RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+```
+
+- [Build your Docker Image](#build-the-image)
 
 ## API specification
 
@@ -196,6 +234,10 @@ You can now take the content of this file and put it into your `workflow` when i
 ## Build the image
 
 You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
+
+If you plan to bring your own ComfyUI models, you can add the `SKIP_DEFAULT_MODELS` build arg to reduce image size:
+`docker build --build-arg SKIP_DEFAULT_MODELS=1 -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`.
+This will skip downloading the default models for this image.
 
 🚨 It's important to specify the `--platform linux/amd64`, otherwise you will get an error on RunPod, see [#13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
 
