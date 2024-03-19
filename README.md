@@ -19,9 +19,9 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Config](#config)
   - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
-  * [Bring your own models](#bring-your-own-models)
-    + [Network Volume](#network-volume)
-    + [Custom Docker Image](#custom-docker-image)
+  - [Bring your own models](#bring-your-own-models)
+    - [Network Volume](#network-volume)
+    - [Custom Docker Image](#custom-docker-image)
 - [API specification](#api-specification)
   - [JSON Request Body](#json-request-body)
   - [Fields](#fields)
@@ -69,9 +69,11 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 ## Config
 
-| Environment Variable | Description                                                                                                                                                                        | Default |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `REFRESH_WORKER`     | When you want stop the worker after each finished job to have a clean state, see [official documentation](https://docs.runpod.io/docs/handler-additional-controls#refresh-worker). | `false` |
+| Environment Variable        | Description                                                                                                                                                                           | Default |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `REFRESH_WORKER`            | When you want to stop the worker after each finished job to have a clean state, see [official documentation](https://docs.runpod.io/docs/handler-additional-controls#refresh-worker). | `false` |
+| `COMFY_POLLING_INTERVAL_MS` | Time to wait between poll attempts in milliseconds.                                                                                                                                   | `250`   |
+| `COMFY_POLLING_MAX_RETRIES` | Maximum number of poll attempts. You have to increase when you have long running workflows.                                                                                           | `500`   |
 
 ### Upload image to AWS S3
 
