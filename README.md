@@ -162,7 +162,8 @@ The following describes which fields exist when doing requests to the API. We on
     "images": [
       {
         "name": "example_image_name.png",
-        "image": "base64_encoded_string"
+        "image": "base64_encoded_string",
+        "subfolder": "my_subfolder",
       }
     ]
   }
@@ -179,14 +180,15 @@ The following describes which fields exist when doing requests to the API. We on
 
 #### "input.images"
 
-An array of images, where each image should have a different name.
+An array of images, where each image should have a different name. An optional subfolder can be specified for each image to allow for structuring of inputs.
 
 🚨 The request body for a RunPod endpoint is 10 MB for `/run` and 20 MB for `/runsync`, so make sure that your input images are not super huge as this will be blocked by RunPod otherwise, see the [official documentation](https://docs.runpod.io/docs/serverless-endpoint-urls)
 
-| Field Name | Type   | Required | Description                                                                              |
-| ---------- | ------ | -------- | ---------------------------------------------------------------------------------------- |
-| `name`     | String | Yes      | The name of the image. Please use the same name in your workflow to reference the image. |
-| `image`    | String | Yes      | A base64 encoded string of the image.                                                    |
+| Field Name  | Type   | Required | Description                                                                              |
+| ----------- | ------ | -------- | ---------------------------------------------------------------------------------------- |
+| `name`      | String | Yes      | The name of the image. Please use the same name in your workflow to reference the image. |
+| `image`     | String | Yes      | A base64 encoded string of the image.                                                    |
+| `subfolder` | String | No       | Optional subfolder for the image relative to the input directory.                        |
 
 ## Interact with your RunPod API
 

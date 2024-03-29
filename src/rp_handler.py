@@ -130,6 +130,9 @@ def upload_images(images):
             "overwrite": (None, "true"),
         }
 
+        if image.get("subfolder"):
+            files["subfolder"] = (None, image["subfolder"])
+
         # POST request to upload the image
         response = requests.post(f"http://{COMFY_HOST}/upload/image", files=files)
         if response.status_code != 200:
