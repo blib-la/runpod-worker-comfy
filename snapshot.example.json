@@ -1,0 +1,151 @@
+{
+    "comfyui": "96b4c757cf55698d50c782cf0f9462bc40ec4c19",
+    "git_custom_nodes": {
+        "https://github.com/11cafe/comfyui-workspace-manager": {
+            "hash": "61a899a2bfe7b701898058deba1e94b91a1c63e7",
+            "disabled": false
+        },
+        "https://github.com/jags111/efficiency-nodes-comfyui": {
+            "hash": "60f87003ab538283f849b2e0a2e249609cf4ae64",
+            "disabled": false
+        },
+        "https://github.com/WASasquatch/was-node-suite-comfyui": {
+            "hash": "6c3fed70655b737dc9b59da1cadb3c373c08d8ed",
+            "disabled": false
+        },
+        "https://github.com/cubiq/ComfyUI_InstantID": {
+            "hash": "ac20ccc660108904e1167ba548322d554ff4d681",
+            "disabled": false
+        },
+        "https://github.com/city96/SD-Latent-Upscaler": {
+            "hash": "89543b07f2c5eccb80ea08102d139323be04e6aa",
+            "disabled": false
+        },
+        "https://github.com/Chaoses-Ib/ComfyScript.git": {
+            "hash": "133d43171ce0f4732b3081b408049210713e3abb",
+            "disabled": false
+        },
+        "https://github.com/twri/sdxl_prompt_styler": {
+            "hash": "51068179927f79dce14f38c6b1984390ab242be2",
+            "disabled": false
+        },
+        "https://github.com/djbielejeski/a-person-mask-generator": {
+            "hash": "99709cf999bd00fe0eb864f55acabda88e3e2654",
+            "disabled": false
+        },
+        "https://github.com/ssitu/ComfyUI_roop": {
+            "hash": "d35f4aaed6568ed95691b7258fac7814d6544a02",
+            "disabled": false
+        },
+        "https://github.com/cubiq/ComfyUI_essentials": {
+            "hash": "04184e957d54a2314c8a22c6ec6a956428dff2c0",
+            "disabled": false
+        },
+        "https://github.com/laksjdjf/IPAdapter-ComfyUI": {
+            "hash": "c39015c384cd433d38b4bbd3de276682ab74e0fc",
+            "disabled": false
+        },
+        "https://github.com/ltdrdata/ComfyUI-Manager.git": {
+            "hash": "7038af92daaaa92925b2aef4b17af234a6323cbd",
+            "disabled": false
+        },
+        "https://github.com/ltdrdata/ComfyUI-Inspire-Pack": {
+            "hash": "c849e3a6c6ffc847a148ad25e95ba5ae03eaab52",
+            "disabled": false
+        },
+        "https://github.com/Acly/comfyui-tooling-nodes": {
+            "hash": "bcb591c7b998e13f12e2d47ee08cf8af8f791e50",
+            "disabled": false
+        },
+        "https://github.com/storyicon/comfyui_segment_anything": {
+            "hash": "ab6395596399d5048639cdab7e44ec9fae857a93",
+            "disabled": false
+        },
+        "https://github.com/cubiq/ComfyUI_FaceAnalysis": {
+            "hash": "2aae576a3b48e3d96dc82fcd74704d81793bb0dc",
+            "disabled": false
+        },
+        "git@github.com:Stability-AI/stability-ComfyUI-nodes.git": {
+            "hash": "001154622564b17223ce0191803c5fff7b87146c",
+            "disabled": false
+        },
+        "https://github.com/Fannovel16/comfyui_controlnet_aux": {
+            "hash": "33d6e86b65c40e5f97052262c6900f413684ccde",
+            "disabled": false
+        },
+        "https://github.com/mav-rik/facerestore_cf": {
+            "hash": "67f90bc6be976fb58169866155346b0da13bebee",
+            "disabled": false
+        },
+        "https://github.com/nosiu/comfyui-instantId-faceswap": {
+            "hash": "b497f7e59b8f54982d62df4574242401acb89238",
+            "disabled": false
+        },
+        "git@github.com:Gourieff/comfyui-reactor-node.git": {
+            "hash": "2870d048b3bc296ab7dfefea42f86be0753089a3",
+            "disabled": false
+        },
+        "https://github.com/LarryJane491/Lora-Training-in-Comfy": {
+            "hash": "b4063dc1ee255c0aba571ac9bd4958c519312c43",
+            "disabled": false
+        },
+        "https://github.com/melMass/comfy_mtb": {
+            "hash": "eeac8c002ad1f9e461418fb66b9338e969259e58",
+            "disabled": false
+        },
+        "https://github.com/abdozmantar/ComfyUI-InstaSwap": {
+            "hash": "8dbcd6a3651a6aad4f78c4275ba38639934f5474",
+            "disabled": false
+        },
+        "https://github.com/imb101/ComfyUI-FaceSwap": {
+            "hash": "752c658dd12842cea2752ab83f2e89fd1f2ac882",
+            "disabled": false
+        },
+        "https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb": {
+            "hash": "c8b14087afab8efae22fce098b742f01cce22947",
+            "disabled": false
+        },
+        "https://github.com/komojini/ComfyUI_SDXL_DreamBooth_LoRA_CustomNodes": {
+            "hash": "6a723cac9781d3a83ef9bae403788de80387c5f5",
+            "disabled": false
+        },
+        "https://github.com/ltdrdata/ComfyUI-Impact-Pack": {
+            "hash": "0b002ef3fb2f44fbb2e4848023e2894dce560824",
+            "disabled": false
+        },
+        "https://github.com/daxthin/facedetailer": {
+            "hash": "bde02fe0735b747b14f23ea1e2c6ff6e6eecc0ae",
+            "disabled": false
+        },
+        "https://github.com/rgthree/rgthree-comfy": {
+            "hash": "ecffebdb3ac817bfb8f5568a0ddfe2bf8dd8753a",
+            "disabled": false
+        },
+        "https://github.com/THtianhao/ComfyUI-Portrait-Maker": {
+            "hash": "fde067c9f56e565229da523bd87e987b7c45500e",
+            "disabled": false
+        },
+        "https://github.com/space-nuko/ComfyUI-OpenPose-Editor": {
+            "hash": "4d8fe730acdb11ab2fcd592129d91d338d270adf",
+            "disabled": false
+        },
+        "https://github.com/ZHO-ZHO-ZHO/ComfyUI-InstantID.git": {
+            "hash": "495277ea7ce42285786046686a4a9bf5f5604c56",
+            "disabled": false
+        },
+        "https://github.com/cubiq/ComfyUI_IPAdapter_plus": {
+            "hash": "bf627aafd0dfcc59b945cc84d1f088d457780c4a",
+            "disabled": false
+        }
+    },
+    "file_custom_nodes": [
+        {
+            "filename": "websocket_image_save.py",
+            "disabled": false
+        },
+        {
+            "filename": "clipseg.py",
+            "disabled": false
+        }
+    ]
+}

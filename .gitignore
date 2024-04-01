@@ -5,3 +5,4 @@ data
 models
 simulated_uploaded
 __pycache__
+snapshot.json

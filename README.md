@@ -32,6 +32,7 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
     - [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
+  - [Restoring ComfyUI snapshots](#restoring-comfyui-snapshots)
 - [Local testing](#local-testing)
   - [Setup](#setup)
     - [Setup for Windows](#setup-for-windows)
@@ -242,6 +243,14 @@ If you plan to bring your own ComfyUI models, you can add the `SKIP_DEFAULT_MODE
 This will skip downloading the default models for this image.
 
 🚨 It's important to specify the `--platform linux/amd64`, otherwise you will get an error on RunPod, see [#13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
+
+### Restoring ComfyUI snapshots
+
+The popular [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager) extension allows exporting a snapshot of ComfyUI with all installed extensions as JSON file. See [here](https://github.com/ltdrdata/ComfyUI-Manager?tab=readme-ov-file#snapshot-manager) on how to use this feature.
+
+To restore a snapshot within the Docker build process and make all listed extensions available in the RunPod worker, simply put the snapshot file named as `snapshot.json` in the root directory and trigger an image build. 
+
+🚨 Some custom nodes and extensions may download models as part of the installation process. This can considerably blow up the image size. Additionally, having many custom nodes and extensions may increase the initialization time of ComfyUI. You should therefore be careful with what exensions to add to your worker.
 
 ## Local testing
 
