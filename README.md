@@ -1,5 +1,10 @@
 # runpod-worker-comfy
 
+Chack out Captain: The AI Platform
+- https://github.com/blib-la/captain
+- https://get-captain.com
+
+
 > [ComfyUI](https://github.com/comfyanonymous/ComfyUI) as a serverless API on [RunPod](https://www.runpod.io/)
 
 <p align="center">
