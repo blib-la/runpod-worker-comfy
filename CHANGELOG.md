@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.1...2.1.2) (2024-05-27)
+
+
+### Bug Fixes
+
+* removed xl_more_art-full_v1 because civitai requires login now ([2e8e638](https://github.com/blib-la/runpod-worker-comfy/commit/2e8e63801a7672e4923eaad0c18a4b3e2c14d79c))
+
 ## [2.1.1](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.0...2.1.1) (2024-05-27)
 
 
