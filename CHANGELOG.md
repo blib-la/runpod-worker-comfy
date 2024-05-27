@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.0...2.1.1) (2024-05-27)
+
+
+### Bug Fixes
+
+* check_server default values for delay and check-interval ([4945a9d](https://github.com/blib-la/runpod-worker-comfy/commit/4945a9d65b55aae9117591c8d64f9882d200478e))
+
 # [2.1.0](https://github.com/blib-la/runpod-worker-comfy/compare/2.0.0...2.1.0) (2024-02-12)
 
 
