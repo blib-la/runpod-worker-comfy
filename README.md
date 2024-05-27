@@ -1,9 +1,9 @@
 # runpod-worker-comfy
 
 Chack out Captain: The AI Platform
+
 - https://github.com/blib-la/captain
 - https://get-captain.com
-
 
 > [ComfyUI](https://github.com/comfyanonymous/ComfyUI) as a serverless API on [RunPod](https://www.runpod.io/)
 
@@ -22,25 +22,25 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Quickstart](#quickstart)
 - [Features](#features)
 - [Config](#config)
-  * [Upload image to AWS S3](#upload-image-to-aws-s3)
+  - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 - [API specification](#api-specification)
-  * [JSON Request Body](#json-request-body)
-  * [Fields](#fields)
-    + ["input.images"](#inputimages)
+  - [JSON Request Body](#json-request-body)
+  - [Fields](#fields)
+    - ["input.images"](#inputimages)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
-  * [Health status](#health-status)
-  * [Generate an image](#generate-an-image)
-    + [Example request with cURL](#example-request-with-curl)
+  - [Health status](#health-status)
+  - [Generate an image](#generate-an-image)
+    - [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Build the image](#build-the-image)
 - [Local testing](#local-testing)
-  * [Setup](#setup)
-    + [Setup for Windows](#setup-for-windows)
-  * [Test: handler](#test-handler)
-  * [Local API](#local-api)
-    + [Starting local endpoint](#starting-local-endpoint)
-    + [Accessing the API](#accessing-the-api)
+  - [Setup](#setup)
+    - [Setup for Windows](#setup-for-windows)
+  - [Test: handler](#test-handler)
+  - [Local API](#local-api)
+    - [Starting local endpoint](#starting-local-endpoint)
+    - [Accessing the API](#accessing-the-api)
 - [Automatically deploy to Docker hub with Github Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgments](#acknowledgments)
 
@@ -66,8 +66,6 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - Build-in VAE:
   - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
   - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
-- Build-in LoRA:
-  - [xl_more_art-full_v1.safetensors](https://civitai.com/models/124347?modelVersionId=152309) (Enhancer)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
