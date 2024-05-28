@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.2...2.1.3) (2024-05-28)
+
+
+### Bug Fixes
+
+* images in subfolders are not working, fixes [#12](https://github.com/blib-la/runpod-worker-comfy/issues/12) ([37480c2](https://github.com/blib-la/runpod-worker-comfy/commit/37480c2d217698f799f6388ff311b9f8c6c38804))
+
 ## [2.1.2](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.1...2.1.2) (2024-05-27)
 
 
