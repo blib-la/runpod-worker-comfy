@@ -67,8 +67,6 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - Build-in VAE:
   - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
   - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
-- Build-in LoRA:
-  - [xl_more_art-full_v1.safetensors](https://civitai.com/models/124347?modelVersionId=152309) (Enhancer)
 - [Bring your own models](#bring-your-own-models)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
