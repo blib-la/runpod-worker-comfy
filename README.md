@@ -1,5 +1,10 @@
 # runpod-worker-comfy
 
+Chack out Captain: The AI Platform
+
+- https://github.com/blib-la/captain
+- https://get-captain.com
+
 > [ComfyUI](https://github.com/comfyanonymous/ComfyUI) as a serverless API on [RunPod](https://www.runpod.io/)
 
 <p align="center">
@@ -95,6 +100,7 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 - Create a [new template](https://runpod.io/console/serverless/user/templates) by clicking on `New Template`
 - In the dialog, configure:
   - Template Name: `runpod-worker-comfy` (it can be anything you want)
+  - Template Type: serverless (change template type to "serverless")
   - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:latest` (or `dev` if you want to have the development release)
   - Container Registry Credentials: You can leave everything as it is, as this repo is public
   - Container Disk: `20 GB`
@@ -104,7 +110,7 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 - Navigate to [`Serverless > Endpoints`](https://www.runpod.io/console/serverless/user/endpoints) and click on `New Endpoint`
 - In the dialog, configure:
   - Endpoint Name: `comfy`
-  - Select Template: `runpow-worker-comfy` (or whatever name you gave your template)
+  - Select Template: `runpod-worker-comfy` (or whatever name you gave your template)
   - Active Workers: `0` (whatever makes sense for you)
   - Max Workers: `3` (whatever makes sense for you)
   - Idle Timeout: `5` (you can leave the default)

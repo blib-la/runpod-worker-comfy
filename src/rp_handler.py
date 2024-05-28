@@ -66,7 +66,7 @@ def validate_input(job_input):
     return {"workflow": workflow, "images": images}, None
 
 
-def check_server(url, retries=50, delay=500):
+def check_server(url, retries=500, delay=50):
     """
     Check if a server is reachable via HTTP GET request
 
