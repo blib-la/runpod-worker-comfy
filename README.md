@@ -19,28 +19,28 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Quickstart](#quickstart)
 - [Features](#features)
 - [Config](#config)
-  - [Upload image to AWS S3](#upload-image-to-aws-s3)
+  * [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 - [API specification](#api-specification)
-  - [JSON Request Body](#json-request-body)
-  - [Fields](#fields)
-    - ["input.images"](#inputimages)
+  * [JSON Request Body](#json-request-body)
+  * [Fields](#fields)
+    + ["input.images"](#inputimages)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
-  - [Health status](#health-status)
-  - [Generate an image](#generate-an-image)
-    - [Example request with cURL](#example-request-with-curl)
+  * [Health status](#health-status)
+  * [Generate an image](#generate-an-image)
+    + [Example request with cURL](#example-request-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Bring Your Own Models and Nodes](#bring-your-own-models-and-nodes)
-  - [Network Volume](#network-volume)
-  - [Custom Docker Image](#custom-docker-image)
+  * [Network Volume](#network-volume)
+  * [Custom Docker Image](#custom-docker-image)
 - [Local testing](#local-testing)
-  - [Setup](#setup)
-    - [Setup for Windows](#setup-for-windows)
-  - [Testing the RunPod handler](#testing-the-runpod-handler)
-  - [Local API](#local-api)
-    - [Access the local Worker API](#access-the-local-worker-api)
-    - [Access local ComfyUI](#access-local-comfyui)
-- [Automatically deploy to Docker hub with Github Actions](#automatically-deploy-to-docker-hub-with-github-actions)
+  * [Setup](#setup)
+    + [Setup for Windows](#setup-for-windows)
+  * [Testing the RunPod handler](#testing-the-runpod-handler)
+  * [Local API](#local-api)
+    + [Access the local Worker API](#access-the-local-worker-api)
+    + [Access local ComfyUI](#access-local-comfyui)
+- [Automatically deploy to Docker hub with GitHub Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgments](#acknowledgments)
 
 <!-- tocstop -->
@@ -357,9 +357,9 @@ docker-compose up
 
 - With the local API server running, you can access ComfyUI at: [http://localhost:8188]
 
-## Automatically deploy to Docker hub with Github Actions
+## Automatically deploy to Docker hub with GitHub Actions
 
-The repo contains two workflows that publish the image to Docker hub using Github Actions:
+The repo contains two workflows that publish the image to Docker hub using GitHub Actions:
 
 - [dev.yml](.github/workflows/dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
 - [release.yml](.github/workflows/release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
