@@ -215,7 +215,7 @@ You can now take the content of this file and put it into your `workflow` when i
 
 ### Network Volume
 
-Using a Network Volume allows you to store and access custom models and ComfyUI nodes:
+Using a Network Volume allows you to store and access custom models:
 
 1. **Create a Network Volume**:
    - Follow the [RunPod Network Volumes guide](https://docs.runpod.io/docs/create-a-network-volume) to create a volume.
@@ -244,7 +244,7 @@ Note: The folders in the Network Volume are automatically available to ComfyUI w
 
 ### Custom Docker Image
 
-If you prefer to include your models or nodes directly in the Docker image, follow these steps:
+If you prefer to include your models directly in the Docker image, follow these steps:
 
 1. **Fork the Repository**:
 
@@ -361,8 +361,8 @@ docker-compose up
 
 The repo contains two workflows that publish the image to Docker hub using Github Actions:
 
-- [docker-dev.yml](.github/workflows/docker-dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
-- [docker-release.yml](.github/workflows/docker-release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
+- [dev.yml](.github/workflows/dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
+- [release.yml](.github/workflows/release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
 
 If you want to use this, you should add these secrets to your repository:
 
