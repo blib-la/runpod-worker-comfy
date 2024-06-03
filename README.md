@@ -218,7 +218,7 @@ You can now take the content of this file and put it into your `workflow` when i
 Using a Network Volume allows you to store and access custom models:
 
 1. **Create a Network Volume**:
-   - Follow the [RunPod Network Volumes guide](https://docs.runpod.io/docs/create-a-network-volume) to create a volume.
+   - Follow the [RunPod Network Volumes guide](https://docs.runpod.io/pods/storage/create-network-volumes) to create a volume.
 2. **Populate the Volume**:
 
    - Create a temporary GPU instance:
