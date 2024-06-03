@@ -222,13 +222,13 @@ Using a Network Volume allows you to store and access custom models:
 2. **Populate the Volume**:
 
    - Create a temporary GPU instance:
-     - Navigate to `Manage > Storage`, click `Deploy` under the volume, and deploy any GPU instance.
-     - Navigate to `Manage > Pods`. Under the new GPU instance, click `Connect` to open a shell (either via Jupyter notebook or SSH).
-   - Populate the volume with your models or nodes:
+     - Navigate to `Manage > Storage`, click `Deploy` under the volume, and deploy any GPU or CPU instance.
+     - Navigate to `Manage > Pods`. Under the new pod, click `Connect` to open a shell (either via Jupyter notebook or SSH).
+   - Populate the volume with your models:
      ```bash
      cd /workspace
-     for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae custom_nodes; do mkdir -p models/$i; done
-     wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors
+     for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
+     wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/resolve/main/sd_xl_turbo_1.0_fp16.safetensors
      ```
 
 3. **Delete the Temporary GPU Instance**:
