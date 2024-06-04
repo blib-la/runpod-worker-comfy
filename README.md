@@ -192,12 +192,33 @@ Please also take a look at the [test_input.json](./test_input.json) to see how t
 
 ```bash
 curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"workflow":{"3":{"inputs":{"seed":1337,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
+```
 
-# Response with AWS S3 bucket configuration
-# {"delayTime":2188,"executionTime":2297,"id":"sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1","output":{"message":"https://bucket.s3.region.amazonaws.com/10-23/sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1/c67ad621.png","status":"success"},"status":"COMPLETED"}
+Example response with AWS S3 bucket configuration
 
-# Response as base64-encoded image
-# {"delayTime":2188,"executionTime":2297,"id":"sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1","output":{"message":"base64encodedimage","status":"success"},"status":"COMPLETED"}
+```json
+{
+  "delayTime": 2188,
+  "executionTime": 2297,
+  "id": "sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1",
+  "output": {
+    "message": "https://bucket.s3.region.amazonaws.com/10-23/sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1/c67ad621.png",
+    "status": "success"
+  },
+  "status": "COMPLETED"
+}
+```
+
+Example response as base64-encoded image
+
+```json
+{
+  "delayTime": 2188,
+  "executionTime": 2297,
+  "id": "sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1",
+  "output": { "message": "base64encodedimage", "status": "success" },
+  "status": "COMPLETED"
+}
 ```
 
 ## How to get the workflow from ComfyUI?
