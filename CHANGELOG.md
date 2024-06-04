@@ -1,3 +1,16 @@
+# [2.2.0](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.3...2.2.0) (2024-06-04)
+
+
+### Bug Fixes
+
+* don’t persist credentials ([1546420](https://github.com/blib-la/runpod-worker-comfy/commit/15464201b24de0746fe365e7635540330887a393))
+* use custom GITHUB_TOKEN to bypass branch protection ([9b6468a](https://github.com/blib-la/runpod-worker-comfy/commit/9b6468a40b8a476d7812423ff6fe7b73f5f91f1d))
+
+
+### Features
+
+* network-volume; execution time config; skip default images; access ComfyUI via web ([#35](https://github.com/blib-la/runpod-worker-comfy/issues/35)) ([070cde5](https://github.com/blib-la/runpod-worker-comfy/commit/070cde5460203e24e3fbf68c4ff6c9a9b7910f3f)), closes [#16](https://github.com/blib-la/runpod-worker-comfy/issues/16)
+
 ## [2.1.3](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.2...2.1.3) (2024-05-28)
 
 
