@@ -1,0 +1,114 @@
+{
+  "input": {
+    "workflow": {
+      "3": {
+        "inputs": {
+          "seed": 416138702284529,
+          "steps": 20,
+          "cfg": 8,
+          "sampler_name": "euler",
+          "scheduler": "normal",
+          "denoise": 1,
+          "model": ["4", 0],
+          "positive": ["6", 0],
+          "negative": ["7", 0],
+          "latent_image": ["5", 0]
+        },
+        "class_type": "KSampler",
+        "_meta": {
+          "title": "KSampler"
+        }
+      },
+      "4": {
+        "inputs": {
+          "ckpt_name": "v1-5-pruned-emaonly.safetensors"
+        },
+        "class_type": "CheckpointLoaderSimple",
+        "_meta": {
+          "title": "Load Checkpoint"
+        }
+      },
+      "5": {
+        "inputs": {
+          "width": 512,
+          "height": 512,
+          "batch_size": 1
+        },
+        "class_type": "EmptyLatentImage",
+        "_meta": {
+          "title": "Empty Latent Image"
+        }
+      },
+      "6": {
+        "inputs": {
+          "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle,",
+          "clip": ["4", 1]
+        },
+        "class_type": "CLIPTextEncode",
+        "_meta": {
+          "title": "CLIP Text Encode (Prompt)"
+        }
+      },
+      "7": {
+        "inputs": {
+          "text": "text, watermark",
+          "clip": ["4", 1]
+        },
+        "class_type": "CLIPTextEncode",
+        "_meta": {
+          "title": "CLIP Text Encode (Prompt)"
+        }
+      },
+      "8": {
+        "inputs": {
+          "samples": ["3", 0],
+          "vae": ["4", 2]
+        },
+        "class_type": "VAEDecode",
+        "_meta": {
+          "title": "VAE Decode"
+        }
+      },
+      "10": {
+        "inputs": {
+          "output_path": "output_path",
+          "filename_prefix": "filename_prefix",
+          "filename_delimiter": "___",
+          "filename_number_padding": 4,
+          "filename_number_start": "false",
+          "extension": "webp",
+          "quality": 10,
+          "lossless_webp": "false",
+          "overwrite_mode": "false",
+          "show_history": "false",
+          "show_history_by_prefix": "false",
+          "embed_workflow": "false",
+          "show_previews": "false",
+          "images": ["8", 0]
+        },
+        "class_type": "Image Save",
+        "_meta": {
+          "title": "Image Save"
+        }
+      },
+      "11": {
+        "inputs": {
+          "images": ["8", 0]
+        },
+        "class_type": "PreviewImage",
+        "_meta": {
+          "title": "Preview Image"
+        }
+      },
+      "12": {
+        "inputs": {
+          "images": ["8", 0]
+        },
+        "class_type": "PreviewImage",
+        "_meta": {
+          "title": "Preview Image"
+        }
+      }
+    }
+  }
+}
