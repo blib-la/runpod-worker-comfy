@@ -56,7 +56,7 @@ jobs:
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/changelog']
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BLIBLA_SEMANTIC_RELEASE }}
 
       - name: Build image and push it to Docker Hub
         if: steps.semanticrelease.outputs.new-release-published == 'true'
