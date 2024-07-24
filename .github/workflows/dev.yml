@@ -45,4 +45,4 @@ jobs:
         with:
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ github.ref_name | replace('/', '-') }}
