@@ -10,8 +10,6 @@ jobs:
   dev:
     runs-on: ubuntu-latest-m
     env:
-      DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_REPO }}
-      DOCKERHUB_IMG: ${{ secrets.DOCKERHUB_IMG }}
       HUGGINGFACE_ACCESS_TOKEN: ${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
       RELEASE_VERSION: ${{ github.ref_name }}
 
