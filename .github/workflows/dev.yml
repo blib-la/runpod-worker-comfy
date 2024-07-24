@@ -49,7 +49,7 @@ jobs:
         with:
           push: true
           targets: sd3
-          args: |
-            HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
-            DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
-            DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}
+          set: |
+            sd3.args.HUGGINGFACE_API_KEY=${{ secrets.HUGGINGFACE_API_KEY }}
+            sd3.args.DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
+            sd3.args.DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}
