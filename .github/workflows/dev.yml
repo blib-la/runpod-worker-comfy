@@ -10,12 +10,13 @@ jobs:
   dev:
     runs-on: ubuntu-latest-m
     env:
-      DOCKERHUB_REPO: ${{ env.DOCKERHUB_REPO }}
-      DOCKERHUB_IMG: ${{ env.DOCKERHUB_IMG }}
       HUGGINGFACE_ACCESS_TOKEN: ${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
       RELEASE_VERSION: ${{ github.ref_name }}
 
     steps:
+      - name: show env
+        run: env
+
       - name: Checkout
         uses: actions/checkout@v3
 
