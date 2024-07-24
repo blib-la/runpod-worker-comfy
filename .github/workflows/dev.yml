@@ -8,16 +8,8 @@ on:
 
 jobs:
   dev:
-    runs-on: ubuntu-latest-m
-    env:
-      DOCKERHUB_IMG: "runpod-worker-comfy"
-      HUGGINGFACE_ACCESS_TOKEN: ${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
-      RELEASE_VERSION: ${{ github.ref_name }}
-
+    runs-on: ubuntu-latest
     steps:
-      - name: show env
-        run: env
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -48,8 +40,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set environment variables
+        run: |
+          echo "DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}" >> $GITHUB_ENV
+          echo "DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${GITHUB_REF##refs/heads/}" | sed 's/\//-/g' >> $GITHUB_ENV
+
       - name: Build and push the images
         uses: docker/bake-action@v2
         with:
           push: true
           targets: sd3
+          set: |
+            base.args.DOCKERHUB_REPO=${{ env.DOCKERHUB_REPO }}
+            base.args.DOCKERHUB_IMG=${{ env.DOCKERHUB_IMG }}
+            base.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
+            sdxl.args.DOCKERHUB_REPO=${{ env.DOCKERHUB_REPO }}
+            sdxl.args.DOCKERHUB_IMG=${{ env.DOCKERHUB_IMG }}
+            sdxl.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
+            sd3.args.HUGGINGFACE_ACCESS_TOKEN=${{ env.HUGGINGFACE_ACCESS_TOKEN }}
+            sd3.args.DOCKERHUB_REPO=${{ env.DOCKERHUB_REPO }}
+            sd3.args.DOCKERHUB_IMG=${{ env.DOCKERHUB_IMG }}
+            sd3.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
