@@ -50,7 +50,10 @@ jobs:
           push: true
           targets: sd3
           set: |
-            DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
-            DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}
-            RELEASE_VERSION=${{ env.RELEASE_VERSION }}
-            HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
+            base.args.DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
+            base.args.DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}
+            base.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
+            sd3.args.HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
+            sd3.args.DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
+            sd3.args.DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}
+            sd3.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
