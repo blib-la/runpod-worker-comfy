@@ -40,7 +40,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set branch name as RELEASE_VERSION
+      - name: Set branch name as release version
         id: get_tag
         run: echo "RELEASE_VERSION=${GITHUB_REF##refs/heads/}" | sed 's/\//-/g' >> $GITHUB_ENV
 
@@ -49,7 +49,8 @@ jobs:
         with:
           push: true
           targets: sd3
-        env:
-          HUGGINGFACE_ACCESS_TOKEN: ${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
-          DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_REPO }}
-          DOCKERHUB_IMG: ${{ secrets.DOCKERHUB_IMG }}
+          set: |
+            DOCKERHUB_REPO=${{ secrets.DOCKERHUB_REPO }}
+            DOCKERHUB_IMG=${{ secrets.DOCKERHUB_IMG }}
+            RELEASE_VERSION=${{ env.RELEASE_VERSION }}
+            HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
