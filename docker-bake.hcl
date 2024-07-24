@@ -46,6 +46,8 @@ target "sd3" {
   dockerfile = "Dockerfile"
   target = "final"
   args = {
+    DOCKERHUB_REPO = "${DOCKERHUB_REPO}"
+    DOCKERHUB_IMG = "${DOCKERHUB_IMG}"
     MODEL_TYPE = "sd3"
     HUGGINGFACE_ACCESS_TOKEN = "${HUGGINGFACE_ACCESS_TOKEN}"
   }

@@ -67,7 +67,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ steps.semanticrelease.outputs.release-version }}
-            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:latest
 
       - name: Update description on Docker Hub
         if: steps.semanticrelease.outputs.new-release-published == 'true'
