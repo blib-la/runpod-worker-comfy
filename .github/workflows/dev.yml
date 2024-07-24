@@ -40,9 +40,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set branch name as tag
+        id: get_tag
+        run: echo "::set-output name=tag::${GITHUB_REF##*/}" | sed 's/\//-/g'
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ github.ref_name | replace('/', '-') }}
+            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ steps.get_tag.outputs.tag }}
