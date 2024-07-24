@@ -22,6 +22,11 @@ target "base" {
   context = "."
   dockerfile = "Dockerfile"
   target = "base"
+  args = {
+    DOCKERHUB_REPO = "${DOCKERHUB_REPO}"
+    DOCKERHUB_IMG = "${DOCKERHUB_IMG}"
+    RELEASE_VERSION = "${RELEASE_VERSION}"
+  }
   tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-base"]
 }
 
