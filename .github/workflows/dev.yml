@@ -10,7 +10,6 @@ jobs:
   dev:
     runs-on: ubuntu-latest-m
     env:
-      DOCKERHUB_REPOSITORY: timpietruskyblibla
       DOCKERHUB_IMG: "runpod-worker-comfy"
       HUGGINGFACE_ACCESS_TOKEN: ${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}
       RELEASE_VERSION: ${{ github.ref_name }}

@@ -1,5 +1,5 @@
 variable "DOCKERHUB_REPO" {
-  default = ""
+  default = "timpietruskyblibla"
 }
 
 variable "DOCKERHUB_IMG" {
