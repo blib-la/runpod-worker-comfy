@@ -42,12 +42,11 @@ WORKDIR /
 ADD src/start.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh
 
-# Stage 2: Final image with optional model weights
-FROM base as final
+# Stage 2: Download models
+FROM base as downloader
 
-# Define build arguments
-ARG MODEL_TYPE
 ARG HUGGINGFACE_ACCESS_TOKEN
+ARG MODEL_TYPE
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
@@ -61,8 +60,11 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
       wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/checkpoints/sd3_medium_incl_clips_t5xxlfp8.safetensors https://huggingface.co/stabilityai/stable-diffusion-3-medium/resolve/main/sd3_medium_incl_clips_t5xxlfp8.safetensors; \
     fi
 
-# Go back to the root
-WORKDIR /
+# Stage 3: Final image
+FROM base
+
+# Copy models from stage 2 to the final image
+COPY --from=downloader /comfyui/models /comfyui/models
 
 # Start the container
 CMD /start.sh
