@@ -1,5 +1,5 @@
 variable "DOCKERHUB_REPO" {
-  default = "timpietruskyblibla"
+  default = ""
 }
 
 variable "DOCKERHUB_IMG" {
@@ -22,11 +22,6 @@ target "base" {
   context = "."
   dockerfile = "Dockerfile"
   target = "base"
-  args = {
-    DOCKERHUB_REPO = "${DOCKERHUB_REPO}"
-    DOCKERHUB_IMG = "${DOCKERHUB_IMG}"
-    RELEASE_VERSION = "${RELEASE_VERSION}"
-  }
   tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-base"]
 }
 
@@ -46,8 +41,6 @@ target "sd3" {
   dockerfile = "Dockerfile"
   target = "final"
   args = {
-    DOCKERHUB_REPO = "${DOCKERHUB_REPO}"
-    DOCKERHUB_IMG = "${DOCKERHUB_IMG}"
     MODEL_TYPE = "sd3"
     HUGGINGFACE_ACCESS_TOKEN = "${HUGGINGFACE_ACCESS_TOKEN}"
   }
