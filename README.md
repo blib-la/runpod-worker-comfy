@@ -49,7 +49,10 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 ## Quickstart
 
-- 🐳 Use the latest release of the image for your worker: [timpietruskyblibla/runpod-worker-comfy:2.1.3](https://hub.docker.com/r/timpietruskyblibla/runpod-worker-comfy)
+- 🐳 Choose one of the three available images for your serverless endpoint:
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-base`: doesn't contain any checkpoints, just a clean ComfyUI image
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sd3`: contains the medium checkpoint for Stable Diffusion 3
 - ⚙️ [Set the environment variables](#config)
 - ℹ️ [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 
@@ -60,11 +63,14 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - The generated image is either:
   - Returned as base64-encoded string (default)
   - Uploaded to AWS S3 ([if AWS S3 is configured](#upload-image-to-aws-s3))
-- Build-in checkpoint:
-  - [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
-- Build-in VAE:
-  - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
-  - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
+- There are three different Docker images to choose from:
+  - `<version>-base`: doesn't contain any checkpoints, just a clean ComfyUI image
+  - `<version>-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
+    - Checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
+    - VAEs:
+      - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
+      - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
+  - `<version>-sd3`: contains the checkpoint [sd3_medium_incl_clips_t5xxlfp8.safetensors](https://huggingface.co/stabilityai/stable-diffusion-3-medium) for Stable Diffusion 3
 - [Bring your own models](#bring-your-own-models)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
@@ -98,10 +104,10 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 - In the dialog, configure:
   - Template Name: `runpod-worker-comfy` (it can be anything you want)
   - Template Type: serverless (change template type to "serverless")
-  - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:2.1.3` (or `dev` if you want to have the development release)
+  - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:3.0.0-sd3` (or `-base` for a clean image or `-sdxl` for Stable Diffusion XL)
   - Container Registry Credentials: You can leave everything as it is, as this repo is public
   - Container Disk: `20 GB`
-  - Enviroment Variables: [Configure S3](#upload-image-to-aws-s3)
+  - (optional) Environment Variables: [Configure S3](#upload-image-to-aws-s3)
     - Note: You can also not configure it, the images will then stay in the worker. In order to have them stored permanently, [we have to add the network volume](https://github.com/blib-la/runpod-worker-comfy/issues/1)
 - Click on `Save Template`
 - Navigate to [`Serverless > Endpoints`](https://www.runpod.io/console/serverless/user/endpoints) and click on `New Endpoint`
@@ -112,7 +118,7 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
   - Max Workers: `3` (whatever makes sense for you)
   - Idle Timeout: `5` (you can leave the default)
   - Flash Boot: `enabled` (doesn't cost more, but provides faster boot of our worker, which is good)
-  - Advanced: If you are using a Network Volume, select it under `Select Network Volume`. Otherwise leave the defaults.
+  - (optional) Advanced: If you are using a Network Volume, select it under `Select Network Volume`. Otherwise leave the defaults.
   - Select a GPU that has some availability
   - GPUs/Worker: `1`
 - Click `deploy`
@@ -283,15 +289,21 @@ If you prefer to include your models directly in the Docker image, follow these 
      ```
 
 3. **Build Your Docker Image**:
-   - Build the image locally:
+   - Build the **base** image locally:
      ```bash
-     docker build -t <your_dockerhub_username>/runpod-worker-comfy:dev --platform linux/amd64 .
+     docker build -t <your_dockerhub_username>/runpod-worker-comfy:dev-base --target base --platform linux/amd64 .
      ```
-   - Optionally, skip downloading the default models to reduce the image size:
+   - Build the **sdxl** image locally:
      ```bash
-     docker build --build-arg SKIP_DEFAULT_MODELS=1 -t <your_dockerhub_username>/runpod-worker-comfy:dev --platform linux/amd64 .
+     docker build --build-arg MODEL_TYPE=sdxl -t <your_dockerhub_username>/runpod-worker-comfy:dev-sdxl --platform linux/amd64 .
      ```
-   - Ensure to specify `--platform linux/amd64` to avoid errors on RunPod, see [issue #13](https://github.com/blib-la/runpod-worker-comfy/issues/13).
+   - Build the **sd3** image locally:
+     ```bash
+     docker build --build-arg MODEL_TYPE=sd3 --build-arg HUGGINGFACE_ACCESS_TOKEN=<your-huggingface-token> -t <your_dockerhub_username>/runpod-worker-comfy:dev-sd3 --platform linux/amd64 .
+     ```
+
+> [!NOTE]  
+> Ensure to specify `--platform linux/amd64` to avoid errors on RunPod, see [issue #13](https://github.com/blib-la/runpod-worker-comfy/issues/13).
 
 ## Local testing
 
@@ -385,14 +397,19 @@ The repo contains two workflows that publish the image to Docker hub using GitHu
 - [dev.yml](.github/workflows/dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
 - [release.yml](.github/workflows/release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
 
-If you want to use this, you should add these secrets to your repository:
+If you want to use this, you should add these **secrets** to your repository:
 
-| Configuration Variable | Description                                                  | Example Value         |
-| ---------------------- | ------------------------------------------------------------ | --------------------- |
-| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                                    | `your-username`       |
-| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
-| `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
-| `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
+| Configuration Variable | Description                               | Example Value   |
+| ---------------------- | ----------------------------------------- | --------------- |
+| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                 | `your-username` |
+| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication. | `your-token`    |
+
+And also make sure to add these **variables** to your repository:
+
+| Variable Name    | Description                                                  | Example Value         |
+| ---------------- | ------------------------------------------------------------ | --------------------- |
+| `DOCKERHUB_REPO` | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
+| `DOCKERHUB_IMG`  | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
 
 ## Acknowledgments
 

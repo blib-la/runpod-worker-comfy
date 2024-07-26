@@ -1,4 +1,4 @@
-# Use Nvidia CUDA base image
+# Stage 1: Base image with common dependencies
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
 
 # Prevents prompts from packages asking for user input during installation
@@ -24,16 +24,9 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git /comfyui
 # Change working directory to ComfyUI
 WORKDIR /comfyui
 
-ARG SKIP_DEFAULT_MODELS
-# Download checkpoints/vae/LoRA to include in image.
-RUN if [ -z "$SKIP_DEFAULT_MODELS" ]; then wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors; fi
-RUN if [ -z "$SKIP_DEFAULT_MODELS" ]; then wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors; fi
-RUN if [ -z "$SKIP_DEFAULT_MODELS" ]; then wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors; fi
-
 # Install ComfyUI dependencies
-RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 \
-    && pip3 install --no-cache-dir xformers==0.0.21 \
-    && pip3 install -r requirements.txt
+RUN pip3 install --upgrade --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 \
+    && pip3 install --upgrade -r requirements.txt
 
 # Install runpod
 RUN pip3 install runpod requests
@@ -47,6 +40,30 @@ WORKDIR /
 # Add the start and the handler
 ADD src/start.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh
+
+# Stage 2: Download models
+FROM base as downloader
+
+ARG HUGGINGFACE_ACCESS_TOKEN
+ARG MODEL_TYPE
+
+# Change working directory to ComfyUI
+WORKDIR /comfyui
+
+# Download checkpoints/vae/LoRA to include in image based on model type
+RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
+      wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors && \
+      wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors && \
+      wget -O models/vae/sdxl-vae-fp16-fix.safetensors https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors; \
+    elif [ "$MODEL_TYPE" = "sd3" ]; then \
+      wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/checkpoints/sd3_medium_incl_clips_t5xxlfp8.safetensors https://huggingface.co/stabilityai/stable-diffusion-3-medium/resolve/main/sd3_medium_incl_clips_t5xxlfp8.safetensors; \
+    fi
+
+# Stage 3: Final image
+FROM base as final
+
+# Copy models from stage 2 to the final image
+COPY --from=downloader /comfyui/models /comfyui/models
 
 # Start the container
 CMD /start.sh
