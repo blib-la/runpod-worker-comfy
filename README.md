@@ -398,10 +398,11 @@ The repo contains two workflows that publish the image to Docker hub using GitHu
 
 If you want to use this, you should add these **secrets** to your repository:
 
-| Configuration Variable | Description                               | Example Value   |
-| ---------------------- | ----------------------------------------- | --------------- |
-| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                 | `your-username` |
-| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication. | `your-token`    |
+| Configuration Variable     | Description                               | Example Value       |
+| -------------------------- | ----------------------------------------- | ------------------- |
+| `DOCKERHUB_USERNAME`       | Your Docker Hub username.                 | `your-username`     |
+| `DOCKERHUB_TOKEN`          | Your Docker Hub token for authentication. | `your-token`        |
+| `HUGGINGFACE_ACCESS_TOKEN` | Your READ access token from Hugging Face  | `your-access-token` |
 
 And also make sure to add these **variables** to your repository:
 
