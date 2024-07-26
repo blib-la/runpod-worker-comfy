@@ -52,8 +52,11 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - 🐳 Choose one of the three available images for your serverless endpoint:
   - `timpietruskyblibla/runpod-worker-comfy:3.0.0-base`: doesn't contain any checkpoints, just a clean ComfyUI image
   - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
-  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sd3`: contains the medium checkpoint for Stable Diffusion 3
-- ⚙️ [Set the environment variables](#config)
+    - Checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
+    - VAEs:
+      - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
+      - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sd3`: contains the [sd3_medium_incl_clips_t5xxlfp8.safetensors](https://huggingface.co/stabilityai/stable-diffusion-3-medium) checkpoint for Stable Diffusion 3
 - ℹ️ [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
 
 ## Features
@@ -64,13 +67,13 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
   - Returned as base64-encoded string (default)
   - Uploaded to AWS S3 ([if AWS S3 is configured](#upload-image-to-aws-s3))
 - There are three different Docker images to choose from:
-  - `<version>-base`: doesn't contain any checkpoints, just a clean ComfyUI image
-  - `<version>-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-base`: doesn't contain any checkpoints, just a clean ComfyUI image
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
     - Checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
     - VAEs:
       - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
       - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
-  - `<version>-sd3`: contains the checkpoint [sd3_medium_incl_clips_t5xxlfp8.safetensors](https://huggingface.co/stabilityai/stable-diffusion-3-medium) for Stable Diffusion 3
+  - `timpietruskyblibla/runpod-worker-comfy:3.0.0-sd3`: contains the [sd3_medium_incl_clips_t5xxlfp8.safetensors](https://huggingface.co/stabilityai/stable-diffusion-3-medium) checkpoint for Stable Diffusion 3
 - [Bring your own models](#bring-your-own-models)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
