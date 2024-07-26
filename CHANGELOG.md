@@ -1,3 +1,77 @@
+# [3.0.0](https://github.com/blib-la/runpod-worker-comfy/compare/2.2.0...3.0.0) (2024-07-26)
+
+
+### Features
+
+* support sd3 ([#46](https://github.com/blib-la/runpod-worker-comfy/issues/46)) ([dde69d6](https://github.com/blib-la/runpod-worker-comfy/commit/dde69d6ca75eb7e4c5f01fd17e6da5b62f8a401f))
+
+
+### BREAKING CHANGES
+
+* we have 3 different images now instead of just one: base, sdxl and sd3
+
+* ci: use branch name for creating dev releases
+
+* ci: replace "/" with "-" to have a valid tag name
+
+* ci: correctly handle the tag  name
+
+* ci: build an image that contains sd3 using docker bake
+
+* ci: use "set" instead of "args"
+
+* ci: use "env" instead of "set"
+
+* ci: use variables instead of args
+
+* ci: set variables directly for the targets
+
+* ci: write the secrets into the GITHUB_ENV
+
+* ci: handle env variables correctly
+
+* ci: use env variables from GitHub Variables
+
+* ci: added back to env
+
+* ci: print out env
+
+* ci: adding the vars directly into the workflow
+
+* ci: example workflow for sd3
+
+* ci: renamed DOCKERHUB_REPO to DOCKERHUB_REPOSITORY
+
+* ci: removed quotes for DOCKERHUB_REPOSITORY
+
+* ci: only use DOCKERHUB_REPO in bake
+
+* ci: added vars into sd3 target
+
+* ci: added direct target
+
+* ci: back to basics
+
+* ci: multi-stage build to not expose the HUGGINGFACE_ACCESS_TOKEN
+
+* ci: write everything into GITHUB_ENV again
+
+* ci: use correct name for final stage
+
+* ci: use correct runner
+
+* fix: make sure to use the latest versions of all packages
+
+* ci: simplified variables for all targets
+
+* docs: added 3 images, updated build your own image
+
+* docs: updated TOC
+
+* ci: updated name
+
+* ci: use docker bake to publish 3 images instead of just 1
+
 # [2.2.0](https://github.com/blib-la/runpod-worker-comfy/compare/2.1.3...2.2.0) (2024-06-04)
 
 
