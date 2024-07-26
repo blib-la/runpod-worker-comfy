@@ -47,7 +47,7 @@ jobs:
           echo "HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}" >> $GITHUB_ENV
           echo "RELEASE_VERSION=${GITHUB_REF##refs/heads/}" | sed 's/\//-/g' >> $GITHUB_ENV
 
-      - name: Build and push the images
+      - name: Build and push the images to Docker Hub
         uses: docker/bake-action@v2
         with:
           push: true
