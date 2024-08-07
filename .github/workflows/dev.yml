@@ -55,4 +55,4 @@ jobs:
             *.args.DOCKERHUB_REPO=${{ env.DOCKERHUB_REPO }}
             *.args.DOCKERHUB_IMG=${{ env.DOCKERHUB_IMG }}
             *.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
-            sd3.args.HUGGINGFACE_ACCESS_TOKEN=${{ env.HUGGINGFACE_ACCESS_TOKEN }}
+            *.args.HUGGINGFACE_ACCESS_TOKEN=${{ env.HUGGINGFACE_ACCESS_TOKEN }}
