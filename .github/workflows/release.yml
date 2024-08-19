@@ -8,7 +8,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest-m
+    runs-on: ubuntu-latest-l
     if: ${{ !contains(github.event.head_commit.message, 'chore(release)') }}
     permissions:
       contents: write # to be able to publish a GitHub release
