@@ -69,11 +69,20 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
       wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/vae/ae.safetensors https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors; \
     fi
 
+# RUN wget -O models/checkpoints/bluePencilXL_v600.safetensors https://huggingface.co/bluepen5805/blue_pencil-XL/resolve/main/blue_pencil-XL-v6.0.0.safetensors?download=true && \
+#   wget -O models/checkpoints/animaPencilXL_v400.safetensors https://huggingface.co/bluepen5805/anima_pencil-XL/resolve/main/anima_pencil-XL-v4.0.0.safetensors?download=true && \
+#   wget -O models/checkpoints/animagineXLV31_v30.safetensors https://huggingface.co/cagliostrolab/animagine-xl-3.0/resolve/main/animagine-xl-3.0.safetensors?download=true
+
+RUN git clone https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI.git custom_nodes/ControlNet-LLLite-ComfyUI && \
+    wget -O custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_canny_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_canny_anime.safetensors?download=true && \
+    wget -O custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_scribble_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_fake_scribble_anime.safetensors?download=true
+
 # Stage 3: Final image
 FROM base as final
 
 # Copy models from stage 2 to the final image
 COPY --from=downloader /comfyui/models /comfyui/models
+COPY --from=downloader /comfyui/custom_nodes /comfyui/custom_nodes
 
 # Start the container
 CMD /start.sh
