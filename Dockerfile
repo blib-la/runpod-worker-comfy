@@ -1,5 +1,5 @@
 # Stage 1: Base image with common dependencies
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as sdxl
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
 
 # Prevents prompts from packages asking for user input during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -42,7 +42,7 @@ ADD src/start.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh
 
 # Stage 2: Download models
-FROM sdxl as downloader
+FROM base as downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 ARG MODEL_TYPE
@@ -70,7 +70,7 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
     fi
 
 # Stage 3: Final image
-FROM sdxl as final
+FROM base as final
 
 # custom node
 RUN git clone git clone https://github.com/TemryL/ComfyUI-IDM-VTON.git custom_nodes/<custom-node-repo>
