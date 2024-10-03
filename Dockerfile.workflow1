@@ -1,0 +1,90 @@
+# Stage 1: Base image with common dependencies
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
+
+# Prevents prompts from packages asking for user input during installation
+ENV DEBIAN_FRONTEND=noninteractive
+# Prefer binary wheels over source distributions for faster pip installations
+ENV PIP_PREFER_BINARY=1
+# Ensures output from python is printed immediately to the terminal without buffering
+ENV PYTHONUNBUFFERED=1 
+
+# Install Python, git and other necessary tools
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    git \
+    wget
+
+# Clean up to reduce image size
+RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+# Clone ComfyUI repository
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git /comfyui
+
+# Change working directory to ComfyUI
+WORKDIR /comfyui
+
+# Install ComfyUI dependencies
+RUN pip3 install --upgrade --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121 \
+    && pip3 install --upgrade -r requirements.txt
+
+# Install runpod
+RUN pip3 install runpod requests
+
+# Install additional nodes
+RUN git clone https://github.com/Derfuu/Derfuu_ComfyUI_ModdedNodes.git custom_nodes/Derfuu_ComfyUI_ModdedNodes && \
+    git clone https://github.com/sipherxyz/comfyui-art-venture.git custom_nodes/comfyui-art-venture && \
+    git clone https://github.com/rgthree/rgthree-comfy.git custom_nodes/rgthree-comfy && \
+    git clone https://github.com/giriss/comfy-image-saver.git custom_nodes/comfy-image-saver && \
+    git clone https://github.com/cubiq/ComfyUI_essentials.git custom_nodes/ComfyUI_essentials && \
+    git clone https://github.com/chrisgoringe/cg-use-everywhere.git custom_nodes/cg-use-everywhere && \
+    git clone https://github.com/kijai/ComfyUI-DepthAnythingV2.git custom_nodes/ComfyUI-DepthAnythingV2 && \
+    git clone https://github.com/shadowcz007/comfyui-mixlab-nodes.git custom_nodes/comfyui-mixlab-nodes && \
+    git clone https://github.com/yolain/ComfyUI-Easy-Use.git custom_nodes/ComfyUI-Easy-Use && \
+    git clone https://github.com/Fannovel16/comfyui_controlnet_aux.git custom_nodes/comfyui_controlnet_aux && \
+    git clone https://github.com/ltdrdata/ComfyUI-Inspire-Pack.git custom_nodes/ComfyUI-Inspire-Pack
+
+# Install dependencies for the additional nodes
+# Run pip3 install for all custom nodes
+RUN for dir in /comfyui/custom_nodes/*; do \
+    if [ -f "$dir/requirements.txt" ]; then \
+    pip3 install --upgrade -r "$dir/requirements.txt"; \
+    fi; \
+    done
+
+# Support for the network volume
+ADD src/extra_model_paths.yaml ./
+
+# Go back to the root
+WORKDIR /
+
+# Add the start and the handler
+ADD src/start.sh src/rp_handler.py test_input.json ./
+RUN chmod +x /start.sh
+
+# Stage 2: Download models
+FROM base as downloader
+
+ARG HUGGINGFACE_ACCESS_TOKEN
+ENV HUGGINGFACE_ACCESS_TOKEN=${HUGGINGFACE_ACCESS_TOKEN}
+
+# Change working directory to ComfyUI
+WORKDIR /comfyui
+
+# Download custom model and controlnet using the access token
+RUN mkdir -p models/checkpoints models/controlnet && \
+    wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" \
+    -O models/checkpoints/dreamshaperXL_sfwV2TurboDPMSDE.safetensors \
+    https://huggingface.co/Madespace/SFW-SDXL-Turbo/resolve/main/dreamshaperXL_sfwV2TurboDPMSDE.safetensors && \
+    wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" \
+    -O models/controlnet/SDXL_Union_Controlnet.safetensors \
+    https://huggingface.co/Madespace/SDXL_Union_Controlnet/resolve/main/SDXL_Union_Controlnet.safetensors
+
+# Stage 3: Final image
+FROM base as final
+
+# Copy models from stage 2 to the final image
+COPY --from=downloader /comfyui/models /comfyui/models
+
+# Start the container
+CMD /start.sh
