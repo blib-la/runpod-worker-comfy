@@ -42,7 +42,7 @@ ADD src/start.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh
 
 # Stage 2: Download models
-FROM base as downloader
+FROM base as final
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 ARG MODEL_TYPE
@@ -79,12 +79,12 @@ RUN git clone https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI.git custom_n
     wget -O custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_canny_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_canny_anime.safetensors?download=true && \
     wget -O custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_scribble_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_fake_scribble_anime.safetensors?download=true
 
-# Stage 3: Final image
-FROM base as final
+# # Stage 3: Final image
+# FROM base as final
 
-# Copy models from stage 2 to the final image
-COPY --from=downloader /comfyui/models /comfyui/models
-COPY --from=downloader /comfyui/custom_nodes /comfyui/custom_nodes
+# # Copy models from stage 2 to the final image
+# COPY --from=downloader /comfyui/models /comfyui/models
+# COPY --from=downloader /comfyui/custom_nodes /comfyui/custom_nodes
 
 # Start the container
 CMD /start.sh
