@@ -77,8 +77,7 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
       wget -O models/checkpoints/bluePencil_v10.safetensors https://civitai.com/api/download/models/107812?type=Model&format=SafeTensor&size=pruned&fp=fp16 \
       wget -O models/vae/ClearVAE_v23_sd15.safetensors https://civitai.com/api/download/models/88156?type=Model&format=SafeTensor; \
     elif [ "$MODEL_TYPE" = "animagine-xl" ]; then \
-      wget -O models/checkpoints/animagineXLV31_v30.safetensors https://huggingface.co/cagliostrolab/animagine-xl-3.1/resolve/main/animagine-xl-3.1.safetensors \
-      wget -O models/vae/sdxl_vae.safetensors https://huggingface.co/cagliostrolab/animagine-xl-3.1/resolve/main/vae/diffusion_pytorch_model.safetensors; \
+      wget -O models/checkpoints/animagineXLV31_v30.safetensors https://huggingface.co/cagliostrolab/animagine-xl-3.1/resolve/main/animagine-xl-3.1.safetensors; \
     elif [ "$MODEL_TYPE" = "chimera" ]; then \
       wget -O models/checkpoints/chimera_2.safetensors https://civitai.com/api/download/models/611419?type=Model&format=SafeTensor&size=pruned&fp=fp16; \
     elif [ "$MODEL_TYPE" = "pony" ]; then \
