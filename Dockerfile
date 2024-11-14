@@ -74,15 +74,15 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
     elif [ "$MODEL_TYPE" = "blue-pencil-xl" ]; then \
       wget -O models/checkpoints/bluePencilXL_v700.safetensors https://huggingface.co/bluepen5805/blue_pencil-XL/resolve/main/blue_pencil-XL-v7.0.0.safetensors; \
     elif [ "$MODEL_TYPE" = "blue-pencil" ]; then \
-      wget -O models/checkpoints/bluePencil_v10.safetensors https://civitai.com/api/download/models/107812?type=Model&format=SafeTensor&size=pruned&fp=fp16 \
-      wget -O models/vae/ClearVAE_v23_sd15.safetensors https://civitai.com/api/download/models/88156?type=Model&format=SafeTensor; \
+      curl -L -o models/checkpoints/bluePencil_v10.safetensors https://civitai.com/api/download/models/107812?type=Model&format=SafeTensor&size=pruned&fp=fp16 \
+      curl -L -o models/vae/ClearVAE_v23_sd15.safetensors https://civitai.com/api/download/models/88156?type=Model&format=SafeTensor; \
     elif [ "$MODEL_TYPE" = "animagine-xl" ]; then \
       wget -O models/checkpoints/animagineXLV31_v30.safetensors https://huggingface.co/cagliostrolab/animagine-xl-3.1/resolve/main/animagine-xl-3.1.safetensors; \
     elif [ "$MODEL_TYPE" = "chimera" ]; then \
-      wget -O models/checkpoints/chimera_2.safetensors https://civitai.com/api/download/models/611419?type=Model&format=SafeTensor&size=pruned&fp=fp16; \
+      curl -L -o models/checkpoints/chimera_2.safetensors https://civitai.com/api/download/models/611419?type=Model&format=SafeTensor&size=pruned&fp=fp16; \
     elif [ "$MODEL_TYPE" = "pony" ]; then \
-      wget -O models/checkpoints/pony_diffusion_v6_xl.safetensors https://civitai.com/api/download/models/290640?type=Model&format=SafeTensor&size=pruned&fp=fp16 \
-      wget -O models/vae/Ponyxl_V6_vae.safetensors https://civitai.com/api/download/models/290640?type=VAE&format=SafeTensor; \
+      curl -L -o models/checkpoints/pony_diffusion_v6_xl.safetensors https://civitai.com/api/download/models/290640?type=Model&format=SafeTensor&size=pruned&fp=fp16 \
+      curl -L -o models/vae/Ponyxl_V6_vae.safetensors https://civitai.com/api/download/models/290640?type=VAE&format=SafeTensor; \
     elif [ "$MODEL_TYPE" = "sd3-5" ]; then \
       wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/checkpoints/sd3.5_large.safetensors https://huggingface.co/stabilityai/stable-diffusion-3.5-large/resolve/main/sd3.5_large.safetensors \
       wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/clip/clip_g.safetensors https://huggingface.co/stabilityai/stable-diffusion-3.5-large/resolve/main/text_encoders/clip_g.safetensors \
