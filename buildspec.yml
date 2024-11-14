@@ -12,7 +12,7 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build --build-arg MODEL_TYPE=$MODEL_TYPE --build-arg HUGGINGFACE_ACCESS_TOKEN=$HUGGINGFACE_ACCESS_TOKEN --target final -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$MODEL_TYPE
   post_build:
     commands:
       - echo Build completed on `date`
