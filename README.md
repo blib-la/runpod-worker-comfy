@@ -19,28 +19,31 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Config](#config)
   - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
-  * [Create your template (optional)](#create-your-template-optional)
-  * [Create your endpoint](#create-your-endpoint)
-  * [GPU recommendations](#gpu-recommendations)
+  - [Create your template (optional)](#create-your-template-optional)
+  - [Create your endpoint](#create-your-endpoint)
+  - [GPU recommendations](#gpu-recommendations)
 - [API specification](#api-specification)
   - [JSON Request Body](#json-request-body)
   - [Fields](#fields)
     - ["input.images"](#inputimages)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
-  * [Health status](#health-status)
-  * [Generate an image](#generate-an-image)
-    + [Example request for SDXL with cURL](#example-request-for-sdxl-with-curl)
+  - [Health status](#health-status)
+  - [Generate an image](#generate-an-image)
+    - [Example request for SDXL with cURL](#example-request-for-sdxl-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
 - [Bring Your Own Models and Nodes](#bring-your-own-models-and-nodes)
-  * [Network Volume](#network-volume)
-  * [Custom Docker Image](#custom-docker-image)
+  - [Network Volume](#network-volume)
+  - [Custom Docker Image](#custom-docker-image)
+    - [Adding Custom Models](#adding-custom-models)
+    - [Adding Custom Nodes](#adding-custom-nodes)
+    - [Building the Image](#building-the-image)
 - [Local testing](#local-testing)
-  * [Setup](#setup)
-    + [Setup for Windows](#setup-for-windows)
-  * [Testing the RunPod handler](#testing-the-runpod-handler)
-  * [Local API](#local-api)
-    + [Access the local Worker API](#access-the-local-worker-api)
-    + [Access local ComfyUI](#access-local-comfyui)
+  - [Setup](#setup)
+    - [Setup for Windows](#setup-for-windows)
+  - [Testing the RunPod handler](#testing-the-runpod-handler)
+  - [Local API](#local-api)
+    - [Access the local Worker API](#access-the-local-worker-api)
+    - [Access local ComfyUI](#access-local-comfyui)
 - [Automatically deploy to Docker hub with GitHub Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgments](#acknowledgments)
 
@@ -291,47 +294,52 @@ Note: The folders in the Network Volume are automatically available to ComfyUI w
 
 ### Custom Docker Image
 
-If you prefer to include your models directly in the Docker image, follow these steps:
+If you prefer to include your models and custom nodes directly in the Docker image, follow these steps:
 
 1. **Fork the Repository**:
-
    - Fork this repository to your own GitHub account.
 
-2. **Add Your Models in the Dockerfile**:
+#### Adding Custom Models
 
-   - Edit the `Dockerfile` to include your models:
-     ```Dockerfile
-     RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
-     ```
-   - You can also add custom nodes:
-     ```Dockerfile
-     RUN git clone https://github.com/<username>/<custom-node-repo>.git custom_nodes/<custom-node-repo>
-     ```
+To include additional models in your Docker image, edit the `Dockerfile` and add the download commands:
 
-3. **Build Your Docker Image**:
-   - Build the **base** image locally:
-     ```bash
-     docker build -t <your_dockerhub_username>/runpod-worker-comfy:dev-base --target base --platform linux/amd64 .
-     ```
-   - Build the **sdxl** image locally:
-     ```bash
-     docker build --build-arg MODEL_TYPE=sdxl -t <your_dockerhub_username>/runpod-worker-comfy:dev-sdxl --platform linux/amd64 .
-     ```
-   - Build the **sd3** image locally:
-     ```bash
-     docker build --build-arg MODEL_TYPE=sd3 --build-arg HUGGINGFACE_ACCESS_TOKEN=<your-huggingface-token> -t <your_dockerhub_username>/runpod-worker-comfy:dev-sd3 --platform linux/amd64 .
-     ```
+```Dockerfile
+RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+```
+
+#### Adding Custom Nodes
+
+To include custom nodes in your Docker image:
+
+1. Export a snapshot from ComfyUI Manager that includes all your desired custom nodes
+   a. Open "Manager > Snapshot Manager"
+   b. Create a new snapshot by clicking on "Save snapshot"
+   c. Get the `*_snapshot.json` from your ComfyUI: `ComfyUI/custom_nodes/ComfyUI-Manager/snapshots`
+2. Save the snapshot file in the root directory of the project
+3. The snapshot will be automatically restored during the Docker build process, see [Building the Image](#building-the-image)
+
+> [!NOTE]
+>
+> - Some custom nodes may download additional models during installation, which can significantly increase the image size
+> - Having many custom nodes may increase ComfyUI's initialization time
+
+#### Building the Image
+
+Build your customized Docker image locally:
+
+```bash
+# Build the base image
+docker build -t <your_dockerhub_username>/runpod-worker-comfy:dev-base --target base --platform linux/amd64 .
+
+# Build the SDXL image
+docker build --build-arg MODEL_TYPE=sdxl -t <your_dockerhub_username>/runpod-worker-comfy:dev-sdxl --platform linux/amd64 .
+
+# Build the SD3 image
+docker build --build-arg MODEL_TYPE=sd3 --build-arg HUGGINGFACE_ACCESS_TOKEN=<your-huggingface-token> -t <your_dockerhub_username>/runpod-worker-comfy:dev-sd3 --platform linux/amd64 .
+```
 
 > [!NOTE]  
-> Ensure to specify `--platform linux/amd64` to avoid errors on RunPod, see [issue #13](https://github.com/blib-la/runpod-worker-comfy/issues/13).
-
-### Restoring ComfyUI snapshots
-
-The popular [ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager) extension allows exporting a snapshot of ComfyUI with all installed extensions as JSON file. See [here](https://github.com/ltdrdata/ComfyUI-Manager?tab=readme-ov-file#snapshot-manager) on how to use this feature.
-
-To restore a snapshot within the Docker build process and make all listed extensions available in the RunPod worker, simply put the snapshot file named as `snapshot.json` in the root directory and trigger an image build. 
-
-🚨 Some custom nodes and extensions may download models as part of the installation process. This can considerably blow up the image size. Additionally, having many custom nodes and extensions may increase the initialization time of ComfyUI. You should therefore be careful with what exensions to add to your worker.
+> Ensure to specify `--platform linux/amd64` to avoid errors on RunPod, see [issue #13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
 
 ## Local testing
 
