@@ -23,5 +23,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run Python tests
         run: python -m unittest discover
+
+      - name: Run snapshot restoration tests
+        run: |
+          chmod +x tests/test_restore_snapshot.sh
+          ./tests/test_restore_snapshot.sh
