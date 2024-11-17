@@ -311,7 +311,7 @@ RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co
 
 To include custom nodes in your Docker image:
 
-1. Export a snapshot from ComfyUI Manager that includes all your desired custom nodes
+1. [Export a snapshot from ComfyUI Manager](https://github.com/ltdrdata/ComfyUI-Manager?tab=readme-ov-file#snapshot-manager) that includes all your desired custom nodes
    a. Open "Manager > Snapshot Manager"
    b. Create a new snapshot by clicking on "Save snapshot"
    c. Get the `*_snapshot.json` from your ComfyUI: `ComfyUI/custom_nodes/ComfyUI-Manager/snapshots`
