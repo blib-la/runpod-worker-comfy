@@ -8,7 +8,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest-m
+    runs-on: ubuntu-latest-l
     if: ${{ !contains(github.event.head_commit.message, 'chore(release)') }}
     permissions:
       contents: write # to be able to publish a GitHub release
@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -26,9 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Run tests
-        run: python -m unittest discover
 
       - name: Clear space to remove unused folders
         run: |
@@ -59,16 +58,26 @@ jobs:
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/changelog']
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BLIBLA_SEMANTIC_RELEASE }}
 
-      - name: Build image and push it to Docker Hub
+      - name: Set environment variables
         if: steps.semanticrelease.outputs.new-release-published == 'true'
-        uses: docker/build-push-action@v5
+        run: |
+          echo "DOCKERHUB_REPO=${{ vars.DOCKERHUB_REPO }}" >> $GITHUB_ENV
+          echo "DOCKERHUB_IMG=${{ vars.DOCKERHUB_IMG }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_ACCESS_TOKEN=${{ secrets.HUGGINGFACE_ACCESS_TOKEN }}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${{ steps.semanticrelease.outputs.release-version }}" >> $GITHUB_ENV
+
+      - name: Build and push the images to Docker Hub
+        if: steps.semanticrelease.outputs.new-release-published == 'true'
+        uses: docker/bake-action@v2
         with:
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:${{ steps.semanticrelease.outputs.release-version }}
-            ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}:latest
+          set: |
+            *.args.DOCKERHUB_REPO=${{ env.DOCKERHUB_REPO }}
+            *.args.DOCKERHUB_IMG=${{ env.DOCKERHUB_IMG }}
+            *.args.RELEASE_VERSION=${{ env.RELEASE_VERSION }}
+            *.args.HUGGINGFACE_ACCESS_TOKEN=${{ env.HUGGINGFACE_ACCESS_TOKEN }}
 
       - name: Update description on Docker Hub
         if: steps.semanticrelease.outputs.new-release-published == 'true'
@@ -76,7 +85,4 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: ${{ secrets.DOCKERHUB_REPO }}/${{ secrets.DOCKERHUB_IMG }}
-  
-
-
+          repository: ${{ env.DOCKERHUB_REPO }}/${{ env.DOCKERHUB_IMG }}

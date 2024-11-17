@@ -19,26 +19,29 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - [Config](#config)
   - [Upload image to AWS S3](#upload-image-to-aws-s3)
 - [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
-  - [Bring your own models](#bring-your-own-models)
-    - [Network Volume](#network-volume)
-    - [Custom Docker Image](#custom-docker-image)
+  * [Create your template (optional)](#create-your-template-optional)
+  * [Create your endpoint](#create-your-endpoint)
+  * [GPU recommendations](#gpu-recommendations)
 - [API specification](#api-specification)
   - [JSON Request Body](#json-request-body)
   - [Fields](#fields)
     - ["input.images"](#inputimages)
 - [Interact with your RunPod API](#interact-with-your-runpod-api)
-  - [Health status](#health-status)
-  - [Generate an image](#generate-an-image)
-    - [Example request with cURL](#example-request-with-curl)
+  * [Health status](#health-status)
+  * [Generate an image](#generate-an-image)
+    + [Example request for SDXL with cURL](#example-request-for-sdxl-with-curl)
 - [How to get the workflow from ComfyUI?](#how-to-get-the-workflow-from-comfyui)
-- [Build the image](#build-the-image)
-  - [Restoring ComfyUI snapshots](#restoring-comfyui-snapshots)
+- [Bring Your Own Models and Nodes](#bring-your-own-models-and-nodes)
+  * [Network Volume](#network-volume)
+  * [Custom Docker Image](#custom-docker-image)
 - [Local testing](#local-testing)
-  - [Setup](#setup)
-    - [Setup for Windows](#setup-for-windows)
-  - [Test: handler](#test-handler)
-  - [Test: docker image](#test-docker-image)
-- [Automatically deploy to Docker hub with Github Actions](#automatically-deploy-to-docker-hub-with-github-actions)
+  * [Setup](#setup)
+    + [Setup for Windows](#setup-for-windows)
+  * [Testing the RunPod handler](#testing-the-runpod-handler)
+  * [Local API](#local-api)
+    + [Access the local Worker API](#access-the-local-worker-api)
+    + [Access local ComfyUI](#access-local-comfyui)
+- [Automatically deploy to Docker hub with GitHub Actions](#automatically-deploy-to-docker-hub-with-github-actions)
 - [Acknowledgments](#acknowledgments)
 
 <!-- tocstop -->
@@ -47,9 +50,14 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 
 ## Quickstart
 
-- 🐳 Use the latest image for your worker: [timpietruskyblibla/runpod-worker-comfy:latest](https://hub.docker.com/r/timpietruskyblibla/runpod-worker-comfy)
-- ⚙️ [Set the environment variables](#config)
+- 🐳 Choose one of the five available images for your serverless endpoint:
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-base`: doesn't contain anything, just a clean ComfyUI
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-flux1-schnell`: contains the checkpoint, text encoders and VAE for [FLUX.1 schnell](https://huggingface.co/black-forest-labs/FLUX.1-schnell)
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-flux1-dev`: contains the checkpoint, text encoders and VAE for [FLUX.1 dev](https://huggingface.co/black-forest-labs/FLUX.1-dev)
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-sdxl`: contains the checkpoint and VAE for [Stable Diffusion XL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-sd3`: contains the checkpoint for [Stable Diffusion 3 medium](https://huggingface.co/stabilityai/stable-diffusion-3-medium)
 - ℹ️ [Use the Docker image on RunPod](#use-the-docker-image-on-runpod)
+- 🧪 Pick an [example workflow](./test_resources/workflows/) & [send it to your deployed endpoint](#interact-with-your-runpod-api)
 
 ## Features
 
@@ -58,23 +66,26 @@ Read our article here: https://blib.la/blog/comfyui-on-runpod
 - The generated image is either:
   - Returned as base64-encoded string (default)
   - Uploaded to AWS S3 ([if AWS S3 is configured](#upload-image-to-aws-s3))
-- Build-in checkpoint:
-  - [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
-- Build-in VAE:
-  - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
-  - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
-- Build-in LoRA:
-  - [xl_more_art-full_v1.safetensors](https://civitai.com/models/124347?modelVersionId=152309) (Enhancer)
+- There are a few different Docker images to choose from:
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-flux1-schnell`: contains the [flux1-schnell.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell) checkpoint, the [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors) + [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors) text encoders and [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors) VAE for FLUX.1-schnell
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-flux1-dev`: contains the [flux1-dev.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-dev) checkpoint, the [clip_l.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors) + [t5xxl_fp8_e4m3fn.safetensors](https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors) text encoders and [ae.safetensors](https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors) VAE for FLUX.1-dev
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-sdxl`: contains the checkpoints and VAE for Stable Diffusion XL
+    - Checkpoint: [sd_xl_base_1.0.safetensors](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
+    - VAEs:
+      - [sdxl_vae.safetensors](https://huggingface.co/stabilityai/sdxl-vae/)
+      - [sdxl-vae-fp16-fix](https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/)
+  - `timpietruskyblibla/runpod-worker-comfy:3.1.2-sd3`: contains the [sd3_medium_incl_clips_t5xxlfp8.safetensors](https://huggingface.co/stabilityai/stable-diffusion-3-medium) checkpoint for Stable Diffusion 3 medium
 - [Bring your own models](#bring-your-own-models)
 - Based on [Ubuntu + NVIDIA CUDA](https://hub.docker.com/r/nvidia/cuda)
 
 ## Config
 
-| Environment Variable        | Description                                                                                                                                                                           | Default |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `REFRESH_WORKER`            | When you want to stop the worker after each finished job to have a clean state, see [official documentation](https://docs.runpod.io/docs/handler-additional-controls#refresh-worker). | `false` |
-| `COMFY_POLLING_INTERVAL_MS` | Time to wait between poll attempts in milliseconds.                                                                                                                                   | `250`   |
-| `COMFY_POLLING_MAX_RETRIES` | Maximum number of poll attempts. You have to increase when you have long running workflows.                                                                                           | `500`   |
+| Environment Variable        | Description                                                                                                                                                                           | Default  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `REFRESH_WORKER`            | When you want to stop the worker after each finished job to have a clean state, see [official documentation](https://docs.runpod.io/docs/handler-additional-controls#refresh-worker). | `false`  |
+| `COMFY_POLLING_INTERVAL_MS` | Time to wait between poll attempts in milliseconds.                                                                                                                                   | `250`    |
+| `COMFY_POLLING_MAX_RETRIES` | Maximum number of poll attempts. This should be increased the longer your workflow is running.                                                                                        | `500`    |
+| `SERVE_API_LOCALLY`         | Enable local API server for development and testing. See [Local Testing](#local-testing) for more details.                                                                            | disabled |
 
 ### Upload image to AWS S3
 
@@ -93,62 +104,45 @@ This is only needed if you want to upload the generated picture to AWS S3. If yo
 
 ## Use the Docker image on RunPod
 
+### Create your template (optional)
+
 - Create a [new template](https://runpod.io/console/serverless/user/templates) by clicking on `New Template`
 - In the dialog, configure:
   - Template Name: `runpod-worker-comfy` (it can be anything you want)
-  - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:latest` (or `dev` if you want to have the development release)
+  - Template Type: serverless (change template type to "serverless")
+  - Container Image: `<dockerhub_username>/<repository_name>:tag`, in this case: `timpietruskyblibla/runpod-worker-comfy:3.1.2-sd3` (or `-base` for a clean image or `-sdxl` for Stable Diffusion XL or `-flex1-schnell` for FLUX.1 schnell)
   - Container Registry Credentials: You can leave everything as it is, as this repo is public
   - Container Disk: `20 GB`
-  - Enviroment Variables: [Configure S3](#upload-image-to-aws-s3)
+  - (optional) Environment Variables: [Configure S3](#upload-image-to-aws-s3)
     - Note: You can also not configure it, the images will then stay in the worker. In order to have them stored permanently, [we have to add the network volume](https://github.com/blib-la/runpod-worker-comfy/issues/1)
 - Click on `Save Template`
+
+### Create your endpoint
+
 - Navigate to [`Serverless > Endpoints`](https://www.runpod.io/console/serverless/user/endpoints) and click on `New Endpoint`
 - In the dialog, configure:
+
   - Endpoint Name: `comfy`
-  - Select Template: `runpow-worker-comfy` (or whatever name you gave your template)
+  - Worker configuration: Select a GPU that can run the model you have chosen (see [GPU recommendations](#gpu-recommendations))
   - Active Workers: `0` (whatever makes sense for you)
   - Max Workers: `3` (whatever makes sense for you)
+  - GPUs/Worker: `1`
   - Idle Timeout: `5` (you can leave the default)
   - Flash Boot: `enabled` (doesn't cost more, but provides faster boot of our worker, which is good)
-  - Advanced: If you are using a Network Volume, select it under `Select Network Volume`. Otherwise leave the defaults.
-  - Select a GPU that has some availability
-  - GPUs/Worker: `1`
+  - Select Template: `runpod-worker-comfy` (or whatever name you gave your template)
+  - (optional) Advanced: If you are using a Network Volume, select it under `Select Network Volume`. Otherwise leave the defaults.
+
 - Click `deploy`
 - Your endpoint will be created, you can click on it to see the dashboard
 
-### Bring your own models
+### GPU recommendations
 
-#### Network Volume
-
-This is possible because of [RunPod Network Volumes](https://docs.runpod.io/docs/create-a-network-volume), which also works for [serverless](https://docs.runpod.io/serverless/references/endpoint-configurations#select-network-volume).
-
-- [Create a Network Volume](https://docs.runpod.io/docs/create-a-network-volume)
-- Create a temporary GPU instance to populate the volume.
-  Navigate to `Manage > Storage`, click `Deploy` under the volume, deploy any GPU instance
-- Navigate to `Manage > Pods`. Under the new GPU instance, click `Connect`. This
-  will give you either a Jupyter notebook where you can select `Shell` or an address you can ssh to.
-- Within a shell on the GPU instance, populate the Network Volume. By default, the volume
-  is mounted at `/workspace`. In this example, we create the ComfyUI model
-  structure and download a single checkpoint.
-  ```
-  cd /workspace
-  for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
-  wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/blob/main/sd_xl_turbo_1.0_fp16.safetensors
-  ```
-- [Delete the temporary GPU instance](https://docs.runpod.io/docs/pods#terminating-a-pod)
-- Configure your Endpoint to use the Network Volume. Either [create a new endpoint](#use-the-docker-image-on-runpod) or update
-  `Advanced > Select Network Volume (optional)` on an existing endpoint
-
-#### Custom Docker Image
-
-- Fork the repository
-- Add your models directly into the [Dockerfile](./Dockerfile) like this:
-
-```Dockerfile
-RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
-```
-
-- [Build your Docker Image](#build-the-image)
+| Model                     | Image           | Minimum VRAM Required | Container Size |
+| ------------------------- | --------------- | --------------------- | -------------- |
+| Stable Diffusion XL       | `sdxl`          | 8 GB                  | 15 GB          |
+| Stable Diffusion 3 Medium | `sd3`           | 5 GB                  | 20 GB          |
+| FLUX.1 Schnell            | `flux1-schnell` | 24 GB                 | 30 GB          |
+| FLUX.1 dev                | `flux1-dev`     | 24 GB                 | 30 GB          |
 
 ## API specification
 
@@ -191,11 +185,20 @@ An array of images, where each image should have a different name.
 
 ## Interact with your RunPod API
 
-- In the [User Settings](https://www.runpod.io/console/serverless/user/settings) click on `API Keys` and then on the `API Key` button
-- Save the generated key somewhere, as you will not be able to see it again when you navigate away from the page
-- Use cURL or any other tool to access the API using the API key and your Endpoint-ID:
-  - Replace `<api_key>` with your key
-  - Replace `<endpoint_id>` with the ID of the endpoint, you find that when you click on your endpoint, it's part of the URLs shown at the bottom of the first box
+1. **Generate an API Key**:
+
+   - In the [User Settings](https://www.runpod.io/console/serverless/user/settings), click on `API Keys` and then on the `API Key` button.
+   - Save the generated key somewhere safe, as you will not be able to see it again when you navigate away from the page.
+
+2. **Use the API Key**:
+
+   - Use cURL or any other tool to access the API using the API key and your Endpoint ID:
+     - Replace `<api_key>` with your key.
+
+3. **Use your Endpoint**:
+   - Replace `<endpoint_id>` with the [ID of the endpoint](https://www.runpod.io/console/serverless). (You can find the endpoint ID by clicking on your endpoint; it is written underneath the name of the endpoint at the top and also part of the URLs shown at the bottom of the first box.)
+
+![How to find the EndpointID](./assets/my-endpoint-with-endpointID.png)
 
 ### Health status
 
@@ -205,22 +208,43 @@ curl -H "Authorization: Bearer <api_key>" https://api.runpod.ai/v2/<endpoint_id>
 
 ### Generate an image
 
-You can either create a new job async by using `/run` or a sync by using runsync. The example here is using a sync job and waits until the response is delivered.
+You can either create a new job async by using `/run` or a sync by using `/runsync`. The example here is using a sync job and waits until the response is delivered.
 
 The API expects a [JSON in this form](#json-request-body), where `workflow` is the [workflow from ComfyUI, exported as JSON](#how-to-get-the-workflow-from-comfyui) and `images` is optional.
 
 Please also take a look at the [test_input.json](./test_input.json) to see how the API input should look like.
 
-#### Example request with cURL
+#### Example request for SDXL with cURL
 
 ```bash
 curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/json" -d '{"input":{"workflow":{"3":{"inputs":{"seed":1337,"steps":20,"cfg":8,"sampler_name":"euler","scheduler":"normal","denoise":1,"model":["4",0],"positive":["6",0],"negative":["7",0],"latent_image":["5",0]},"class_type":"KSampler"},"4":{"inputs":{"ckpt_name":"sd_xl_base_1.0.safetensors"},"class_type":"CheckpointLoaderSimple"},"5":{"inputs":{"width":512,"height":512,"batch_size":1},"class_type":"EmptyLatentImage"},"6":{"inputs":{"text":"beautiful scenery nature glass bottle landscape, purple galaxy bottle,","clip":["4",1]},"class_type":"CLIPTextEncode"},"7":{"inputs":{"text":"text, watermark","clip":["4",1]},"class_type":"CLIPTextEncode"},"8":{"inputs":{"samples":["3",0],"vae":["4",2]},"class_type":"VAEDecode"},"9":{"inputs":{"filename_prefix":"ComfyUI","images":["8",0]},"class_type":"SaveImage"}}}}' https://api.runpod.ai/v2/<endpoint_id>/runsync
+```
 
-# Response with AWS S3 bucket configuration
-# {"delayTime":2188,"executionTime":2297,"id":"sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1","output":{"message":"https://bucket.s3.region.amazonaws.com/10-23/sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1/c67ad621.png","status":"success"},"status":"COMPLETED"}
+Example response with AWS S3 bucket configuration
 
-# Response as base64-encoded image
-# {"delayTime":2188,"executionTime":2297,"id":"sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1","output":{"message":"base64encodedimage","status":"success"},"status":"COMPLETED"}
+```json
+{
+  "delayTime": 2188,
+  "executionTime": 2297,
+  "id": "sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1",
+  "output": {
+    "message": "https://bucket.s3.region.amazonaws.com/10-23/sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1/c67ad621.png",
+    "status": "success"
+  },
+  "status": "COMPLETED"
+}
+```
+
+Example response as base64-encoded image
+
+```json
+{
+  "delayTime": 2188,
+  "executionTime": 2297,
+  "id": "sync-c0cd1eb2-068f-4ecf-a99a-55770fc77391-e1",
+  "output": { "message": "base64encodedimage", "status": "success" },
+  "status": "COMPLETED"
+}
 ```
 
 ## How to get the workflow from ComfyUI?
@@ -234,15 +258,72 @@ curl -X POST -H "Authorization: Bearer <api_key>" -H "Content-Type: application/
 
 You can now take the content of this file and put it into your `workflow` when interacting with the API.
 
-## Build the image
+## Bring Your Own Models and Nodes
 
-You can build the image locally: `docker build -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`
+### Network Volume
 
-If you plan to bring your own ComfyUI models, you can add the `SKIP_DEFAULT_MODELS` build arg to reduce image size:
-`docker build --build-arg SKIP_DEFAULT_MODELS=1 -t timpietruskyblibla/runpod-worker-comfy:dev --platform linux/amd64 .`.
-This will skip downloading the default models for this image.
+Using a Network Volume allows you to store and access custom models:
 
-🚨 It's important to specify the `--platform linux/amd64`, otherwise you will get an error on RunPod, see [#13](https://github.com/blib-la/runpod-worker-comfy/issues/13)
+1. **Create a Network Volume**:
+   - Follow the [RunPod Network Volumes guide](https://docs.runpod.io/pods/storage/create-network-volumes) to create a volume.
+2. **Populate the Volume**:
+
+   - Create a temporary GPU instance:
+     - Navigate to `Manage > Storage`, click `Deploy` under the volume, and deploy any GPU or CPU instance.
+     - Navigate to `Manage > Pods`. Under the new pod, click `Connect` to open a shell (either via Jupyter notebook or SSH).
+   - Populate the volume with your models:
+     ```bash
+     cd /workspace
+     for i in checkpoints clip clip_vision configs controlnet embeddings loras upscale_models vae; do mkdir -p models/$i; done
+     wget -O models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors https://huggingface.co/stabilityai/sdxl-turbo/resolve/main/sd_xl_turbo_1.0_fp16.safetensors
+     ```
+
+3. **Delete the Temporary GPU Instance**:
+
+   - Once populated, [terminate the temporary GPU instance](https://docs.runpod.io/docs/pods#terminating-a-pod).
+
+4. **Configure Your Endpoint**:
+   - Use the Network Volume in your endpoint configuration:
+     - Either create a new endpoint or update an existing one.
+     - In the endpoint configuration, under `Advanced > Select Network Volume`, select your Network Volume.
+
+Note: The folders in the Network Volume are automatically available to ComfyUI when the network volume is configured and attached.
+
+### Custom Docker Image
+
+If you prefer to include your models directly in the Docker image, follow these steps:
+
+1. **Fork the Repository**:
+
+   - Fork this repository to your own GitHub account.
+
+2. **Add Your Models in the Dockerfile**:
+
+   - Edit the `Dockerfile` to include your models:
+     ```Dockerfile
+     RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+     ```
+   - You can also add custom nodes:
+     ```Dockerfile
+     RUN git clone https://github.com/<username>/<custom-node-repo>.git custom_nodes/<custom-node-repo>
+     ```
+
+3. **Build Your Docker Image**:
+   - Build the **base** image locally:
+     ```bash
+     docker build -t <your_dockerhub_username>/runpod-worker-comfy:dev-base --target base --platform linux/amd64 .
+     ```
+   - Build the **sdxl** image locally:
+     ```bash
+     docker build --build-arg MODEL_TYPE=sdxl -t <your_dockerhub_username>/runpod-worker-comfy:dev-sdxl --platform linux/amd64 .
+     ```
+   - Build the **sd3** image locally:
+     ```bash
+     docker build --build-arg MODEL_TYPE=sd3 --build-arg HUGGINGFACE_ACCESS_TOKEN=<your-huggingface-token> -t <your_dockerhub_username>/runpod-worker-comfy:dev-sd3 --platform linux/amd64 .
+     ```
+
+> [!NOTE]  
+> Ensure to specify `--platform linux/amd64` to avoid errors on RunPod, see [issue #13](https://github.com/blib-la/runpod-worker-comfy/issues/13).
 
 ### Restoring ComfyUI snapshots
 
@@ -258,32 +339,59 @@ Both tests will use the data from [test_input.json](./test_input.json), so make 
 
 ### Setup
 
-- Make sure you have Python >= 3.10
-- Create a virtual environment: `python -m venv venv`
-- Activate the virtual environment: `.\venv\Scripts\activate` (Windows) or `source ./venv/bin/activate` (Mac / Linux)
-- Install the dependencies: `pip install -r requirements.txt`
+1. Make sure you have Python >= 3.10
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   ```
+3. Activate the virtual environment:
+   - **Windows**:
+     ```bash
+     .\venv\Scripts\activate
+     ```
+   - **Mac / Linux**:
+     ```bash
+     source ./venv/bin/activate
+     ```
+4. Install the dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 #### Setup for Windows
 
-**Note**: Our hope was that we can use this Docker Image with Docker Desktop on Windows. But regardless what we did, it was not possible. So we decided to use Ubuntu as part of WSL (Windows Subsystem for Linux) inside of Windows. This works without any problems, but only if you don't run Docker on Windows itself.
+1. Install WSL2 and a Linux distro (like Ubuntu) following [this guide](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview). You can skip the "Install and use a GUI package" part.
+2. After installing Ubuntu, open the terminal and log in:
+   ```bash
+   wsl -d Ubuntu
+   ```
+3. Update the packages:
+   ```bash
+   sudo apt update
+   ```
+4. Install Docker in Ubuntu:
+   - Follow the [official Docker installation guide](https://docs.docker.com/engine/install/ubuntu/).
+   - Install docker-compose:
+     ```bash
+     sudo apt-get install docker-compose
+     ```
+   - Install the NVIDIA Toolkit in Ubuntu:
+     Follow [this guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuring-docker) and create the `nvidia` runtime.
+5. Enable GPU acceleration on Ubuntu on WSL2:
+   Follow [this guide](https://canonical-ubuntu-wsl.readthedocs-hosted.com/en/latest/tutorials/gpu-cuda/).
+   - If you already have your GPU driver installed on Windows, you can skip the "Install the appropriate Windows vGPU driver for WSL" step.
+6. Add your user to the `docker` group to use Docker without `sudo`:
+   ```bash
+   sudo usermod -aG docker $USER
+   ```
 
-To run the Docker image on Windows, we need to have WSL2 and a Linux distro (like Ubuntu) installed on Windows.
+Once these steps are completed, switch to Ubuntu in the terminal and run the Docker image locally on your Windows computer via WSL:
 
-- Follow the [guide on how to get WSL2 and Linux installed in Windows](https://ubuntu.com/tutorials/install-ubuntu-on-wsl2-on-windows-11-with-gui-support#1-overview) to install Ubuntu
-  - You can skip the "Install and use a GUI package" part as we don't need a GUI
+```bash
+wsl -d Ubuntu
+```
 
-* When Ubuntu is installed, you have to login to Ubuntu in the terminal: `wsl -d Ubuntu`
-* Update the packages: `sudo apt update`
-* [Install Docker in Ubuntu](https://docs.docker.com/engine/install/ubuntu/) & then install docker-compose `sudo apt-get install docker-compose`
-* [Install the NVIDIA Toolkit in Ubuntu](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuring-docker) and create the `nvidia` runtime
-
-- [Enable GPU acceleration on Ubuntu on WSL2 to use NVIDIA CUDA](https://ubuntu.com/tutorials/enabling-gpu-acceleration-on-ubuntu-on-wsl2-with-the-nvidia-cuda-platform#1-overview)
-
-  - For the step "Install the appropriate Windows vGPU driver for WSL": If you already have your GPU driver installed on Windows, you can skip this
-
-- Add your user to the `docker` group, so that you can use Docker without `sudo`: `sudo usermod -aG docker $USER`
-
-### Test: handler
+### Testing the RunPod handler
 
 - Run all tests: `python -m unittest discover`
 - If you want to run a specific test: `python -m unittest tests.test_rp_handler.TestRunpodWorkerComfy.test_bucket_endpoint_not_configured`
@@ -295,34 +403,42 @@ To get this to work you will also need to start "ComfyUI", otherwise the handler
 
 For enhanced local development, you can start an API server that simulates the RunPod worker environment. This feature is particularly useful for debugging and testing your integrations locally.
 
-#### Starting local endpoint
-
-Set the `SERVE_API_LOCALLY` environment variable to `true` to activate the local API server when running your Docker container. This is already the default value in the `docker-compose.yml`, so you can get it runnig by executing:
+Set the `SERVE_API_LOCALLY` environment variable to `true` to activate the local API server when running your Docker container. This is already the default value in the `docker-compose.yml`, so you can get it running by executing:
 
 ```bash
 docker-compose up
 ```
 
-#### Accessing the API
+#### Access the local Worker API
 
-- With the local API server running, it's accessible at: [http://localhost:8000](http://localhost:8000)
+- With the local API server running, it's accessible at: [localhost:8000](http://localhost:8000)
 - When you open this in your browser, you can also see the API documentation and can interact with the API directly
 
-## Automatically deploy to Docker hub with Github Actions
+#### Access local ComfyUI
 
-The repo contains two workflows that publish the image to Docker hub using Github Actions:
+- With the local API server running, you can access ComfyUI at: [localhost:8188](http://localhost:8188)
 
-- [docker-dev.yml](.github/workflows/docker-dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
-- [docker-release.yml](.github/workflows/docker-release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
+## Automatically deploy to Docker hub with GitHub Actions
 
-If you want to use this, you should add these secrets to your repository:
+The repo contains two workflows that publish the image to Docker hub using GitHub Actions:
 
-| Configuration Variable | Description                                                  | Example Value         |
-| ---------------------- | ------------------------------------------------------------ | --------------------- |
-| `DOCKERHUB_USERNAME`   | Your Docker Hub username.                                    | `your-username`       |
-| `DOCKERHUB_TOKEN`      | Your Docker Hub token for authentication.                    | `your-token`          |
-| `DOCKERHUB_REPO`       | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
-| `DOCKERHUB_IMG`        | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
+- [dev.yml](.github/workflows/dev.yml): Creates the image and pushes it to Docker hub with the `dev` tag on every push to the `main` branch
+- [release.yml](.github/workflows/release.yml): Creates the image and pushes it to Docker hub with the `latest` and the release tag. It will only be triggered when you create a release on GitHub
+
+If you want to use this, you should add these **secrets** to your repository:
+
+| Configuration Variable     | Description                               | Example Value       |
+| -------------------------- | ----------------------------------------- | ------------------- |
+| `DOCKERHUB_USERNAME`       | Your Docker Hub username.                 | `your-username`     |
+| `DOCKERHUB_TOKEN`          | Your Docker Hub token for authentication. | `your-token`        |
+| `HUGGINGFACE_ACCESS_TOKEN` | Your READ access token from Hugging Face  | `your-access-token` |
+
+And also make sure to add these **variables** to your repository:
+
+| Variable Name    | Description                                                  | Example Value         |
+| ---------------- | ------------------------------------------------------------ | --------------------- |
+| `DOCKERHUB_REPO` | The repository on Docker Hub where the image will be pushed. | `timpietruskyblibla`  |
+| `DOCKERHUB_IMG`  | The name of the image to be pushed to Docker Hub.            | `runpod-worker-comfy` |
 
 ## Acknowledgments
 
