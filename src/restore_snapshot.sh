@@ -9,8 +9,8 @@ if [ -z "$SNAPSHOT_FILE" ]; then
     exit 0
 fi
 
-echo "runpod-worker-comfy: found snapshot file: $SNAPSHOT_FILE"
+echo "runpod-worker-comfy: restoring snapshot: $SNAPSHOT_FILE"
 
-comfy --workspace /comfyui node restore-snapshot "$SNAPSHOT_FILE"
+comfy --workspace /comfyui node restore-snapshot "$SNAPSHOT_FILE" --pip-non-url
 
 echo "runpod-worker-comfy: restored snapshot file: $SNAPSHOT_FILE"
