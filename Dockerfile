@@ -133,3 +133,4 @@ RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git custom
 # COPY --from=downloader /comfyui/custom_nodes /comfyui/custom_nodes
 
 # Start the container
+CMD ["/start.sh"]
