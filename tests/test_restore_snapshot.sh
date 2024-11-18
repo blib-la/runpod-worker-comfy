@@ -7,8 +7,15 @@ set -e
 TEST_DIR=$(mktemp -d)
 cd "$TEST_DIR"
 
-# Copy the example snapshot file from project root with a unique test name
-cp ../test_resources/example_snapshot.json ./test_restore_snapshot_temporary.json
+# Create a minimal mock snapshot file
+cat > test_restore_snapshot_temporary.json << 'EOF'
+{
+  "comfyui": "test-hash",
+  "git_custom_nodes": {},
+  "file_custom_nodes": [],
+  "pips": {}
+}
+EOF
 
 # Create a mock comfy command that simulates the real comfy behavior
 cat > comfy << 'EOF'
@@ -41,5 +48,4 @@ fi
 
 # Clean up
 rm -rf "$TEST_DIR"
-rm -f ../test_restore_snapshot_temporary.json  # Remove the test snapshot file from root directory
   
