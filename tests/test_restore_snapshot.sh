@@ -8,7 +8,7 @@ TEST_DIR=$(mktemp -d)
 cd "$TEST_DIR"
 
 # Copy the example snapshot file from project root with a unique test name
-cp ../test_resources/snapshot.example.json ./test_restore_snapshot_temporary.json
+cp ../test_resources/example_snapshot.json ./test_restore_snapshot_temporary.json
 
 # Create a mock comfy command that simulates the real comfy behavior
 cat > comfy << 'EOF'
