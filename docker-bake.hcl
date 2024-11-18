@@ -1,13 +1,13 @@
 variable "DOCKERHUB_REPO" {
-  default = ""
+  default = "timpietruskyblibla"
 }
 
 variable "DOCKERHUB_IMG" {
-  default = ""
+  default = "runpod-worker-comfy"
 }
 
 variable "RELEASE_VERSION" {
-  default = ""
+  default = "latest"
 }
 
 variable "HUGGINGFACE_ACCESS_TOKEN" {
@@ -22,6 +22,7 @@ target "base" {
   context = "."
   dockerfile = "Dockerfile"
   target = "base"
+  platforms = ["linux/amd64"]
   tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-base"]
 }
 
