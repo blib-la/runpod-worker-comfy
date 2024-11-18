@@ -3,6 +3,16 @@
 # Set up error handling
 set -e
 
+# Store the path to the script we want to test
+SCRIPT_TO_TEST="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/src/restore_snapshot.sh"
+
+# Ensure the script exists and is executable
+if [ ! -f "$SCRIPT_TO_TEST" ]; then
+    echo "Error: Script not found at $SCRIPT_TO_TEST"
+    exit 1
+fi
+chmod +x "$SCRIPT_TO_TEST"
+
 # Create test directory
 TEST_DIR=$(mktemp -d)
 cd "$TEST_DIR"
@@ -36,7 +46,8 @@ export PATH="$TEST_DIR:$PATH"
 
 # Run the actual restore_snapshot script
 echo "Testing snapshot restoration..."
-../src/restore_snapshot.sh
+echo "Script location: $SCRIPT_TO_TEST"
+"$SCRIPT_TO_TEST"
 
 # Verify the script executed successfully
 if [ $? -eq 0 ]; then
