@@ -89,3 +89,4 @@ FROM base as final
 COPY --from=downloader /comfyui/models /comfyui/models
 
 # Start the container
+CMD ["/start.sh"]
