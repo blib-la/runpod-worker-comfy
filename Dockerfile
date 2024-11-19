@@ -51,6 +51,9 @@ ADD *snapshot*.json /
 # Restore the snapshot to install custom nodes
 RUN /restore_snapshot.sh
 
+# Start container
+CMD ["/start.sh"]
+
 # Stage 2: Download models
 FROM base as downloader
 
@@ -88,5 +91,5 @@ FROM base as final
 # Copy models from stage 2 to the final image
 COPY --from=downloader /comfyui/models /comfyui/models
 
-# Start the container
+# Start container
 CMD ["/start.sh"]
