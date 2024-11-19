@@ -51,6 +51,9 @@ ADD *snapshot*.json /
 # Restore the snapshot to install custom nodes
 RUN /restore_snapshot.sh
 
+# Start container
+CMD ["/start.sh"]
+
 # Stage 2: Download models
 FROM base as final
 
@@ -132,5 +135,5 @@ RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git custom
 # COPY --from=downloader /comfyui/models /comfyui/models
 # COPY --from=downloader /comfyui/custom_nodes /comfyui/custom_nodes
 
-# Start the container
+# Start container
 CMD ["/start.sh"]
