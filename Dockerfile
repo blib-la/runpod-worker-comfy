@@ -101,6 +101,17 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git custom_nodes/C
     pip3 install -r requirements.txt && \
     python3 install-manual.py
 
+RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git custom_nodes/masquerade-nodes-comfyui
+
+RUN git clone https://github.com/melMass/comfy_mtb.git custom_nodes/comfy_mtb && \
+    cd custom_nodes/comfy_mtb && \
+    pip3 install -r requirements.txt && \
+    python3 install.py
+
+RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git custom_nodes/ComfyUI-VideoHelperSuite && \
+    cd custom_nodes/ComfyUI-VideoHelperSuite && \
+    pip3 install -r requirements.txt
+
 # # Stage 3: Final image
 # FROM base as final
 
