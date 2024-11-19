@@ -1,6 +1,6 @@
 services:
   comfyui-worker:
-    image: timpietruskyblibla/runpod-worker-comfy:latest-flux1-schnell
+    image: timpietruskyblibla/runpod-worker-comfy:3.4.0-sdxl
     deploy:
       resources:
         reservations:
