@@ -55,7 +55,7 @@ RUN /restore_snapshot.sh
 CMD ["/start.sh"]
 
 # Stage 2: Download models
-FROM base as final
+FROM base as downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 ARG MODEL_TYPE
@@ -106,34 +106,33 @@ RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
       wget --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/clip/t5xxl_fp16.safetensors https://huggingface.co/stabilityai/stable-diffusion-3.5-large/resolve/main/text_encoders/t5xxl_fp16.safetensors; \
     fi
 
-RUN git clone https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI.git custom_nodes/ControlNet-LLLite-ComfyUI && \
-    wget -O custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_canny_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_canny_anime.safetensors?download=true && \
-    wget -O custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_scribble_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_fake_scribble_anime.safetensors?download=true
+# # Stage 3: Final image
+FROM base as final
 
-RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git custom_nodes/ComfyUI-Impact-Pack && \
-    cd custom_nodes/ComfyUI-Impact-Pack && \
+# # Copy models from stage 2 to the final image
+COPY --from=downloader /comfyui/models /comfyui/models
+
+RUN git clone https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI.git /comfyui/custom_nodes/ControlNet-LLLite-ComfyUI && \
+    wget -O /comfyui/custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_canny_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_canny_anime.safetensors?download=true && \
+    wget -O /comfyui/custom_nodes/ControlNet-LLLite-ComfyUI/models/kohya_controllllite_xl_scribble_anime.safetensors https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_fake_scribble_anime.safetensors?download=true
+
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git /comfyui/custom_nodes/ComfyUI-Impact-Pack && \
+    cd /comfyui/custom_nodes/ComfyUI-Impact-Pack && \
     git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack impact_subpack && \
     apt-get update && apt-get install -y libgl1 libglib2.0-0 libsm6 libxrender1 libxext6 && \
-    pip3 install -r requirements.txt && \
-    python3 install-manual.py
+    pip install -r requirements.txt && \
+    python install-manual.py
 
 RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git custom_nodes/masquerade-nodes-comfyui
 
-RUN git clone https://github.com/melMass/comfy_mtb.git custom_nodes/comfy_mtb && \
-    cd custom_nodes/comfy_mtb && \
-    pip3 install -r requirements.txt && \
-    python3 install.py
+RUN git clone https://github.com/melMass/comfy_mtb.git /comfyui/custom_nodes/comfy_mtb && \
+    cd /comfyui/custom_nodes/comfy_mtb && \
+    pip install -r requirements.txt && \
+    python install.py
 
-RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git custom_nodes/ComfyUI-VideoHelperSuite && \
-    cd custom_nodes/ComfyUI-VideoHelperSuite && \
-    pip3 install -r requirements.txt
-
-# # Stage 3: Final image
-# FROM base as final
-
-# # Copy models from stage 2 to the final image
-# COPY --from=downloader /comfyui/models /comfyui/models
-# COPY --from=downloader /comfyui/custom_nodes /comfyui/custom_nodes
+RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git /comfyui/custom_nodes/ComfyUI-VideoHelperSuite && \
+    cd /comfyui/custom_nodes/ComfyUI-VideoHelperSuite && \
+    pip install -r requirements.txt
 
 # Start container
 CMD ["/start.sh"]
