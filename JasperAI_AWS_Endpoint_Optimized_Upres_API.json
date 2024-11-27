@@ -24,19 +24,6 @@
       "title": "VAE Decode"
     }
   },
-  "9": {
-    "inputs": {
-      "filename_prefix": "ComfyUI/test",
-      "images": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
   "13": {
     "inputs": {
       "image": "Borghese_New_Desat.png",
@@ -167,18 +154,6 @@
       "title": "IPAdapter Model Loader"
     }
   },
-  "62": {
-    "inputs": {
-      "images": [
-        "8",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
   "67": {
     "inputs": {
       "samples": [
@@ -233,7 +208,10 @@
   },
   "72": {
     "inputs": {
-      "filename_prefix": "ComfyUI/test",
+      "filename_prefix": [
+        "159",
+        0
+      ],
       "images": [
         "67",
         0
@@ -645,36 +623,6 @@
       "title": "Apply ControlNet"
     }
   },
-  "257": {
-    "inputs": {
-      "images": [
-        "485",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "319": {
-    "inputs": {
-      "blend_factor": 1,
-      "blend_mode": "multiply",
-      "image1": [
-        "320",
-        0
-      ],
-      "image2": [
-        "389",
-        0
-      ]
-    },
-    "class_type": "Badman_Blend",
-    "_meta": {
-      "title": "ImageBlend(Badman)"
-    }
-  },
   "320": {
     "inputs": {
       "x": 0,
@@ -723,117 +671,6 @@
     "class_type": "EmptyImage",
     "_meta": {
       "title": "EmptyImage"
-    }
-  },
-  "324": {
-    "inputs": {
-      "images": [
-        "319",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "327": {
-    "inputs": {
-      "images": [
-        "335",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "329": {
-    "inputs": {
-      "image": "Borghese_New_Mask.png",
-      "upload": "image"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Detail Mask"
-    }
-  },
-  "333": {
-    "inputs": {
-      "blend_factor": 1,
-      "blend_mode": "multiply",
-      "image1": [
-        "320",
-        0
-      ],
-      "image2": [
-        "394",
-        0
-      ]
-    },
-    "class_type": "Badman_Blend",
-    "_meta": {
-      "title": "ImageBlend(Badman)"
-    }
-  },
-  "334": {
-    "inputs": {
-      "images": [
-        "333",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "335": {
-    "inputs": {
-      "x": 0,
-      "y": 0,
-      "resize_source": true,
-      "destination": [
-        "333",
-        0
-      ],
-      "source": [
-        "319",
-        0
-      ],
-      "mask": [
-        "329",
-        1
-      ]
-    },
-    "class_type": "ImageCompositeMasked",
-    "_meta": {
-      "title": "ImageCompositeMasked"
-    }
-  },
-  "336": {
-    "inputs": {
-      "images": [
-        "335",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "339": {
-    "inputs": {
-      "images": [
-        "320",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   },
   "349": {
@@ -900,48 +737,6 @@
       "title": "Load Image"
     }
   },
-  "367": {
-    "inputs": {
-      "mask": [
-        "329",
-        1
-      ]
-    },
-    "class_type": "InvertMask",
-    "_meta": {
-      "title": "InvertMask"
-    }
-  },
-  "389": {
-    "inputs": {
-      "width": 2048,
-      "height": 2048,
-      "batch_size": 1,
-      "color": [
-        "503",
-        0
-      ]
-    },
-    "class_type": "EmptyImage",
-    "_meta": {
-      "title": "EmptyImage"
-    }
-  },
-  "394": {
-    "inputs": {
-      "width": 2048,
-      "height": 2048,
-      "batch_size": 1,
-      "color": [
-        "504",
-        0
-      ]
-    },
-    "class_type": "EmptyImage",
-    "_meta": {
-      "title": "EmptyImage"
-    }
-  },
   "396": {
     "inputs": {
       "value": ""
@@ -996,19 +791,6 @@
       "title": "Concat String (Badman)"
     }
   },
-  "402": {
-    "inputs": {
-      "filename_prefix": "ComfyUI/test",
-      "images": [
-        "507",
-        0
-      ]
-    },
-    "class_type": "SaveImage",
-    "_meta": {
-      "title": "Save Image"
-    }
-  },
   "412": {
     "inputs": {
       "image": "ComfyUI_temp_taplp_00002_.png",
@@ -1029,18 +811,6 @@
     "class_type": "InvertMask",
     "_meta": {
       "title": "InvertMask"
-    }
-  },
-  "420": {
-    "inputs": {
-      "images": [
-        "506",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   },
   "421": {
@@ -1113,18 +883,6 @@
       "title": "LABColorTransfer(Badman) BODY"
     }
   },
-  "451": {
-    "inputs": {
-      "images": [
-        "450",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
   "452": {
     "inputs": {
       "x": 0,
@@ -1137,51 +895,11 @@
       "source": [
         "450",
         0
-      ],
-      "mask": [
-        "367",
-        0
       ]
     },
     "class_type": "ImageCompositeMasked",
     "_meta": {
       "title": "ImageCompositeMasked"
-    }
-  },
-  "453": {
-    "inputs": {
-      "images": [
-        "452",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "456": {
-    "inputs": {
-      "images": [
-        "502",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
-  "457": {
-    "inputs": {
-      "images": [
-        "448",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
     }
   },
   "461": {
@@ -1280,22 +998,10 @@
       "title": "ImageCompositeMasked"
     }
   },
-  "489": {
-    "inputs": {
-      "images": [
-        "488",
-        0
-      ]
-    },
-    "class_type": "PreviewImage",
-    "_meta": {
-      "title": "Preview Image"
-    }
-  },
   "492": {
     "inputs": {
       "prompt": "__colorsJasper__",
-      "seed": 611385897717923
+      "seed": 877241676871715
     },
     "class_type": "BadmanWildCardProcessor",
     "_meta": {
@@ -1305,7 +1011,7 @@
   "493": {
     "inputs": {
       "prompt": "__colorsJasper__",
-      "seed": 1088470822388078
+      "seed": 1028947477655836
     },
     "class_type": "BadmanWildCardProcessor",
     "_meta": {
@@ -1315,7 +1021,7 @@
   "494": {
     "inputs": {
       "prompt": "__detailCards__",
-      "seed": 116690457105125
+      "seed": 741920556277006
     },
     "class_type": "BadmanWildCardProcessor",
     "_meta": {
@@ -1325,7 +1031,7 @@
   "495": {
     "inputs": {
       "prompt": "__detailCards2__",
-      "seed": 326126693173604
+      "seed": 738568151197279
     },
     "class_type": "BadmanWildCardProcessor",
     "_meta": {
@@ -1433,19 +1139,6 @@
       "title": "Image Blur"
     }
   },
-  "507": {
-    "inputs": {
-      "brightness": 1.25,
-      "image": [
-        "335",
-        0
-      ]
-    },
-    "class_type": "BadmanBrightness",
-    "_meta": {
-      "title": "Image Brightness Adjust (Badman)"
-    }
-  },
   "512": {
     "inputs": {
       "value": "Rabbit"
@@ -1457,7 +1150,7 @@
   },
   "513": {
     "inputs": {
-      "value": "5005441"
+      "value": "12227444"
     },
     "class_type": "Badman_String",
     "_meta": {
@@ -1466,7 +1159,7 @@
   },
   "514": {
     "inputs": {
-      "value": "12227444"
+      "value": "5005441"
     },
     "class_type": "Badman_String",
     "_meta": {
@@ -1475,11 +1168,23 @@
   },
   "515": {
     "inputs": {
-      "value": 0
+      "value": 1461
     },
     "class_type": "INTConstant",
     "_meta": {
       "title": "GlobalSeed"
+    }
+  },
+  "518": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "width": 1536,
+      "height": 1536,
+      "crop": "disabled"
+    },
+    "class_type": "LatentUpscale",
+    "_meta": {
+      "title": "Upscale Latent"
     }
   }
 }

@@ -25,15 +25,19 @@ def set_params(workflow, colorDetail, colorBody, token):
     return workflow
 
 # Function to send a request to the Runpod API endpoint
-def send_request(workflow, api_url, api_key):
+def send_request(workflow, api_url, api_key,testWF):
     # Create the request payload
-    request_payload = {
+    if testWF:
+        request_payload = workflow
+    else :
+         request_payload = {
         "input": {
             "workflow": workflow,
             "images": []
             
         }
     }
+   
     # Add headers
     headers = {
         "accept": "application/json",
@@ -51,17 +55,18 @@ def send_request(workflow, api_url, api_key):
         return None
 
 # Main script
-def main(input_json_path, api_url, api_key, colorDetail, colorBody, token):
+def main(input_json_path, api_url, api_key, colorDetail, colorBody, token, testWF):
     # Load the input JSON file
     start = time.time()
     with open(input_json_path, "r") as f:
         workflow = json.load(f)
 
     # Modify the workflow parameters
-    workflow = set_params(workflow, colorDetail, colorBody, token)
+    if not testWF:
+        workflow = set_params(workflow, colorDetail, colorBody, token)
 
     # Send the modified workflow to the Runpod API
-    response = send_request(workflow, api_url, api_key)
+    response = send_request(workflow, api_url, api_key, testWF)
 
     # Process the response
     if response:
@@ -81,8 +86,13 @@ def main(input_json_path, api_url, api_key, colorDetail, colorBody, token):
 
 if __name__ == "__main__":
     # Input file and API details
-    input_json_path = "JasperAI_AWS_Endpoint_API.json"  # Replace with your JSON file path
-    api_url = "https://api.runpod.ai/v2/e6s4y2ri7yc5aw/runsync"  # Replace with your Runpod API endpoint URL
+    testWF = False
+    if testWF :
+        input_json_path = "test_input.json"
+    else:
+        input_json_path = "JasperAI_AWS_Endpoint_Optimized_Upres_API.json"  # Replace with your JSON file path
+    #input_json_path = "JasperAI_AWS_Endpoint_API.json"  # Replace with your JSON file path
+    api_url = "https://api.runpod.ai/v2/7iufon907pq9wx/runsync"  # Replace with your Runpod API endpoint URL
     api_key = "rpa_RUGGARJG8B04GNBGCN5WK10NUZYBCCT4TWS68HMO5id23n"  # Replace with your API key
 
     # Parameters to set
@@ -91,6 +101,6 @@ if __name__ == "__main__":
     token = "Bear"           # Replace with your desired value
 
     # Run the main script
-    main(input_json_path, api_url, api_key, colorDetail, colorBody, token)
+    main(input_json_path, api_url, api_key, colorDetail, colorBody, token, testWF)
     #curl -Headers @{ "Authorization" = "Bearer rpa_RUGGARJG8B04GNBGCN5WK10NUZYBCCT4TWS68HMO5id23n" } https://api.runpod.ai/v2/e6s4y2ri7yc5aw/health
 
