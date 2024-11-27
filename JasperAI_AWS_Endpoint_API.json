@@ -1,0 +1,1494 @@
+{
+  "4": {
+    "inputs": {
+      "ckpt_name": "realvisxlV40_v40Bakedvae.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "24",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": [
+        "229",
+        0
+      ],
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "13": {
+    "inputs": {
+      "image": "Borghese_New_Desat.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Desat Base Vase"
+    }
+  },
+  "14": {
+    "inputs": {
+      "pixels": [
+        "21",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "21": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "width": 1024,
+      "height": 1024,
+      "crop": "disabled",
+      "image": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "ImageScale",
+    "_meta": {
+      "title": "Upscale Image"
+    }
+  },
+  "24": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "115",
+        0
+      ],
+      "steps": 25,
+      "cfg": 5,
+      "sampler_name": "dpmpp_2m_sde_gpu",
+      "scheduler": "karras",
+      "start_at_step": 0,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "421",
+        0
+      ],
+      "positive": [
+        "349",
+        0
+      ],
+      "negative": [
+        "349",
+        1
+      ],
+      "latent_image": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "44": {
+    "inputs": {
+      "lora_name": "BAS-RELIEF.safetensors",
+      "strength_model": 0.7000000000000001,
+      "strength_clip": 1,
+      "model": [
+        "4",
+        0
+      ],
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "45": {
+    "inputs": {
+      "interpolation": "LANCZOS",
+      "crop_position": "pad",
+      "sharpening": 0,
+      "image": [
+        "92",
+        0
+      ]
+    },
+    "class_type": "PrepImageForClipVision",
+    "_meta": {
+      "title": "Prep Image BG"
+    }
+  },
+  "48": {
+    "inputs": {
+      "clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Load CLIP Vision"
+    }
+  },
+  "49": {
+    "inputs": {
+      "ipadapter_file": "ip-adapter-plus_sdxl_vit-h.safetensors"
+    },
+    "class_type": "IPAdapterModelLoader",
+    "_meta": {
+      "title": "IPAdapter Model Loader"
+    }
+  },
+  "62": {
+    "inputs": {
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "67": {
+    "inputs": {
+      "samples": [
+        "68",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "68": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "115",
+        0
+      ],
+      "steps": 20,
+      "cfg": 4.98,
+      "sampler_name": "dpmpp_2m_sde_gpu",
+      "scheduler": "simple",
+      "start_at_step": 12,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "421",
+        0
+      ],
+      "positive": [
+        "255",
+        0
+      ],
+      "negative": [
+        "255",
+        1
+      ],
+      "latent_image": [
+        "461",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "72": {
+    "inputs": {
+      "filename_prefix": [
+        "159",
+        0
+      ],
+      "images": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "79": {
+    "inputs": {
+      "image": "Borghese_New_Desat_Alpha.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Desat Vase Alpha"
+    }
+  },
+  "92": {
+    "inputs": {
+      "image": "WhiteBackground_1024px.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load BG "
+    }
+  },
+  "94": {
+    "inputs": {
+      "weight": 1,
+      "weight_type": "style transfer precise",
+      "combine_embeds": "concat",
+      "start_at": 0,
+      "end_at": 0.6,
+      "embeds_scaling": "V only",
+      "model": [
+        "480",
+        0
+      ],
+      "ipadapter": [
+        "49",
+        0
+      ],
+      "image": [
+        "121",
+        0
+      ],
+      "image_negative": [
+        "123",
+        0
+      ],
+      "attn_mask": [
+        "414",
+        0
+      ],
+      "clip_vision": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "IPAdapterAdvanced",
+    "_meta": {
+      "title": "IPAdapter Advanced"
+    }
+  },
+  "115": {
+    "inputs": {
+      "Int1": [
+        "515",
+        0
+      ],
+      "Int2": 31337,
+      "math_function": "add"
+    },
+    "class_type": "BadmanIntUtil",
+    "_meta": {
+      "title": "Int Math (Badman)"
+    }
+  },
+  "121": {
+    "inputs": {
+      "interpolation": "LANCZOS",
+      "crop_position": "pad",
+      "sharpening": 0,
+      "image": [
+        "502",
+        0
+      ]
+    },
+    "class_type": "PrepImageForClipVision",
+    "_meta": {
+      "title": "Prep Image Positive"
+    }
+  },
+  "122": {
+    "inputs": {
+      "image": "Borghese_NegImg.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Neg Image"
+    }
+  },
+  "123": {
+    "inputs": {
+      "interpolation": "LANCZOS",
+      "crop_position": "pad",
+      "sharpening": 0,
+      "image": [
+        "506",
+        0
+      ]
+    },
+    "class_type": "PrepImageForClipVision",
+    "_meta": {
+      "title": "Prep Image Neg"
+    }
+  },
+  "135": {
+    "inputs": {
+      "strength": 1,
+      "set_cond_area": "default",
+      "conditioning": [
+        "149",
+        0
+      ],
+      "mask": [
+        "501",
+        0
+      ]
+    },
+    "class_type": "ConditioningSetMask",
+    "_meta": {
+      "title": "Conditioning (Set Mask)"
+    }
+  },
+  "136": {
+    "inputs": {
+      "conditioning_1": [
+        "135",
+        0
+      ],
+      "conditioning_2": [
+        "137",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Conditioning (Combine)"
+    }
+  },
+  "137": {
+    "inputs": {
+      "strength": 1,
+      "set_cond_area": "default",
+      "conditioning": [
+        "144",
+        0
+      ],
+      "mask": [
+        "140",
+        0
+      ]
+    },
+    "class_type": "ConditioningSetMask",
+    "_meta": {
+      "title": "Conditioning (Set Mask)"
+    }
+  },
+  "138": {
+    "inputs": {
+      "image": "clipspace/clipspace-mask-1620180.8000000715.png [input]",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Region Mask"
+    }
+  },
+  "140": {
+    "inputs": {
+      "mask": [
+        "501",
+        0
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "141": {
+    "inputs": {
+      "strength": 1,
+      "set_cond_area": "default",
+      "conditioning": [
+        "145",
+        0
+      ],
+      "mask": [
+        "501",
+        0
+      ]
+    },
+    "class_type": "ConditioningSetMask",
+    "_meta": {
+      "title": "Conditioning (Set Mask)"
+    }
+  },
+  "142": {
+    "inputs": {
+      "conditioning_1": [
+        "141",
+        0
+      ],
+      "conditioning_2": [
+        "143",
+        0
+      ]
+    },
+    "class_type": "ConditioningCombine",
+    "_meta": {
+      "title": "Conditioning (Combine)"
+    }
+  },
+  "143": {
+    "inputs": {
+      "strength": 1,
+      "set_cond_area": "default",
+      "conditioning": [
+        "145",
+        0
+      ],
+      "mask": [
+        "140",
+        0
+      ]
+    },
+    "class_type": "ConditioningSetMask",
+    "_meta": {
+      "title": "Conditioning (Set Mask)"
+    }
+  },
+  "144": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "crop_w": 0,
+      "crop_h": 0,
+      "target_width": 1024,
+      "target_height": 1024,
+      "text_g": "A product photo of a (matte :1.5) (classical vase: 1.5) with  (intricate details:1.25) on the body",
+      "text_l": " (rough surface:1.25), rough texture, (plaster:1.5),(masterpiece:1.4),(best quality:1.4) , intricate details, (official product photo:1.2), perfect lighting, exhibited at the british museum, photo courtesy museum of art, pottery, clay , (rough surface:1.25), rough texture, (plaster:1.5)",
+      "clip": [
+        "44",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncodeSDXL",
+    "_meta": {
+      "title": "CLIPTextEncodeSDXL"
+    }
+  },
+  "145": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "crop_w": 0,
+      "crop_h": 0,
+      "target_width": 1024,
+      "target_height": 1024,
+      "text_g": "oversaturated, high contrast,(metallic:1.15), (glossy:1.2), (reflective:1.25), (shiny:1.25), worst quality, low quality, illustration, 3d, 2d, painting, cartoons,anime, sketch,  (text:1.4), (font:1.6), logo, wood, (black:1.35), ",
+      "text_l": "oversaturated, high contrast,(metallic:1.15), (glossy:1.2), (reflective:1.25), (shiny:1.25), worst quality, low quality, illustration, 3d, 2d, painting, cartoons,anime, sketch,  (text:1.4), (font:1.6), logo, wood, (black:1.35), ",
+      "clip": [
+        "44",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncodeSDXL",
+    "_meta": {
+      "title": "CLIPTextEncodeSDXL"
+    }
+  },
+  "149": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "crop_w": 0,
+      "crop_h": 0,
+      "target_width": 1024,
+      "target_height": 1024,
+      "text_g": [
+        "219",
+        0
+      ],
+      "text_l": "(masterpiece:1.4),(best quality:1.4) ,(rough surface:1.25), rough texture, (plaster:1.5), (intricate details:1.3), (official product photo:1.2), perfect lighting, exhibited at the british museum, photo courtesy museum of art, pottery, clay , ",
+      "clip": [
+        "44",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncodeSDXL",
+    "_meta": {
+      "title": "CLIPTextEncodeSDXL"
+    }
+  },
+  "159": {
+    "inputs": {
+      "string_field_0": [
+        "229",
+        0
+      ],
+      "string_field_1": "_Upres",
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "218": {
+    "inputs": {
+      "string_field_0": "A (",
+      "string_field_1": [
+        "512",
+        0
+      ],
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "219": {
+    "inputs": {
+      "string_field_0": [
+        "218",
+        0
+      ],
+      "string_field_1": ":1.5) as a ( bas relief:1.4), BAS-RELIEF page",
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "225": {
+    "inputs": {
+      "string_field_0": [
+        "397",
+        0
+      ],
+      "string_field_1": [
+        "512",
+        0
+      ],
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "229": {
+    "inputs": {
+      "string_field_0": [
+        "225",
+        0
+      ],
+      "string_field_1": "_",
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "255": {
+    "inputs": {
+      "strength": 0.2,
+      "start_percent": 0,
+      "end_percent": 0.5,
+      "positive": [
+        "136",
+        0
+      ],
+      "negative": [
+        "142",
+        0
+      ],
+      "control_net": [
+        "483",
+        0
+      ],
+      "image": [
+        "485",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply ControlNet"
+    }
+  },
+  "257": {
+    "inputs": {
+      "images": [
+        "485",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "319": {
+    "inputs": {
+      "blend_factor": 1,
+      "blend_mode": "multiply",
+      "image1": [
+        "320",
+        0
+      ],
+      "image2": [
+        "389",
+        0
+      ]
+    },
+    "class_type": "Badman_Blend",
+    "_meta": {
+      "title": "ImageBlend(Badman)"
+    }
+  },
+  "320": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": true,
+      "destination": [
+        "323",
+        0
+      ],
+      "source": [
+        "13",
+        0
+      ],
+      "mask": [
+        "414",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "322": {
+    "inputs": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "grayscale": false
+    },
+    "class_type": "Badman_HexGenerator",
+    "_meta": {
+      "title": "HexGenerator(Badman)"
+    }
+  },
+  "323": {
+    "inputs": {
+      "width": 2048,
+      "height": 2048,
+      "batch_size": 1,
+      "color": [
+        "322",
+        0
+      ]
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "EmptyImage"
+    }
+  },
+  "324": {
+    "inputs": {
+      "images": [
+        "319",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "327": {
+    "inputs": {
+      "images": [
+        "335",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "329": {
+    "inputs": {
+      "image": "Borghese_New_Mask.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Detail Mask"
+    }
+  },
+  "333": {
+    "inputs": {
+      "blend_factor": 1,
+      "blend_mode": "multiply",
+      "image1": [
+        "320",
+        0
+      ],
+      "image2": [
+        "394",
+        0
+      ]
+    },
+    "class_type": "Badman_Blend",
+    "_meta": {
+      "title": "ImageBlend(Badman)"
+    }
+  },
+  "334": {
+    "inputs": {
+      "images": [
+        "333",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "335": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": true,
+      "destination": [
+        "333",
+        0
+      ],
+      "source": [
+        "319",
+        0
+      ],
+      "mask": [
+        "329",
+        1
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "336": {
+    "inputs": {
+      "images": [
+        "335",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "339": {
+    "inputs": {
+      "images": [
+        "320",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "349": {
+    "inputs": {
+      "strength": 0.5,
+      "start_percent": 0,
+      "end_percent": 0.5,
+      "positive": [
+        "350",
+        0
+      ],
+      "negative": [
+        "350",
+        1
+      ],
+      "control_net": [
+        "505",
+        0
+      ],
+      "image": [
+        "412",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply ControlNet"
+    }
+  },
+  "350": {
+    "inputs": {
+      "strength": 0.5,
+      "start_percent": 0,
+      "end_percent": 0.5,
+      "positive": [
+        "136",
+        0
+      ],
+      "negative": [
+        "142",
+        0
+      ],
+      "control_net": [
+        "483",
+        0
+      ],
+      "image": [
+        "358",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplyAdvanced",
+    "_meta": {
+      "title": "Apply ControlNet"
+    }
+  },
+  "358": {
+    "inputs": {
+      "image": "ComfyUI_temp_osihf_00002_.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "367": {
+    "inputs": {
+      "mask": [
+        "329",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "389": {
+    "inputs": {
+      "width": 2048,
+      "height": 2048,
+      "batch_size": 1,
+      "color": [
+        "503",
+        0
+      ]
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "EmptyImage"
+    }
+  },
+  "394": {
+    "inputs": {
+      "width": 2048,
+      "height": 2048,
+      "batch_size": 1,
+      "color": [
+        "504",
+        0
+      ]
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "EmptyImage"
+    }
+  },
+  "396": {
+    "inputs": {
+      "value": ""
+    },
+    "class_type": "Badman_String",
+    "_meta": {
+      "title": "String (Badman)"
+    }
+  },
+  "397": {
+    "inputs": {
+      "string_field_0": [
+        "396",
+        0
+      ],
+      "string_field_1": "\\21_11\\API_Test\\Regional_Optimized2_JasperColors_LAB\\RegionalPrompt_Optimized2_JasperColors_LAB",
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "OutputFilePath"
+    }
+  },
+  "398": {
+    "inputs": {
+      "string_field_0": [
+        "397",
+        0
+      ],
+      "string_field_1": [
+        "512",
+        0
+      ],
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "400": {
+    "inputs": {
+      "string_field_0": [
+        "398",
+        0
+      ],
+      "string_field_1": "_Pallette",
+      "newline": false
+    },
+    "class_type": "Badman_Concat_String",
+    "_meta": {
+      "title": "Concat String (Badman)"
+    }
+  },
+  "402": {
+    "inputs": {
+      "filename_prefix": [
+        "400",
+        0
+      ],
+      "images": [
+        "507",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "412": {
+    "inputs": {
+      "image": "ComfyUI_temp_taplp_00002_.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "414": {
+    "inputs": {
+      "mask": [
+        "79",
+        1
+      ]
+    },
+    "class_type": "InvertMask",
+    "_meta": {
+      "title": "InvertMask"
+    }
+  },
+  "420": {
+    "inputs": {
+      "images": [
+        "506",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "421": {
+    "inputs": {
+      "weight": 0.85,
+      "weight_type": "weak output",
+      "combine_embeds": "concat",
+      "start_at": 0.6,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "model": [
+        "94",
+        0
+      ],
+      "ipadapter": [
+        "49",
+        0
+      ],
+      "image": [
+        "121",
+        0
+      ],
+      "image_negative": [
+        "123",
+        0
+      ],
+      "attn_mask": [
+        "414",
+        0
+      ],
+      "clip_vision": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "IPAdapterAdvanced",
+    "_meta": {
+      "title": "IPAdapter Advanced"
+    }
+  },
+  "448": {
+    "inputs": {
+      "hex_color": [
+        "503",
+        0
+      ],
+      "input_image": [
+        "320",
+        0
+      ]
+    },
+    "class_type": "Badman_ColorTransferLab",
+    "_meta": {
+      "title": "LABColorTransfer(Badman) DETAILS"
+    }
+  },
+  "450": {
+    "inputs": {
+      "hex_color": [
+        "504",
+        0
+      ],
+      "input_image": [
+        "320",
+        0
+      ]
+    },
+    "class_type": "Badman_ColorTransferLab",
+    "_meta": {
+      "title": "LABColorTransfer(Badman) BODY"
+    }
+  },
+  "451": {
+    "inputs": {
+      "images": [
+        "450",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "452": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": true,
+      "destination": [
+        "488",
+        0
+      ],
+      "source": [
+        "450",
+        0
+      ],
+      "mask": [
+        "367",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "453": {
+    "inputs": {
+      "images": [
+        "452",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "456": {
+    "inputs": {
+      "images": [
+        "502",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "457": {
+    "inputs": {
+      "images": [
+        "448",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "461": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "width": 1536,
+      "height": 1536,
+      "crop": "disabled",
+      "samples": [
+        "24",
+        0
+      ]
+    },
+    "class_type": "LatentUpscale",
+    "_meta": {
+      "title": "Upscale Latent"
+    }
+  },
+  "480": {
+    "inputs": {
+      "weight": 1,
+      "weight_type": "linear",
+      "combine_embeds": "concat",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "model": [
+        "44",
+        0
+      ],
+      "ipadapter": [
+        "49",
+        0
+      ],
+      "image": [
+        "45",
+        0
+      ],
+      "attn_mask": [
+        "79",
+        1
+      ],
+      "clip_vision": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "IPAdapterAdvanced",
+    "_meta": {
+      "title": "IPAdapter Advanced"
+    }
+  },
+  "483": {
+    "inputs": {
+      "control_net_name": "t2i-adapter-canny-sdxl-1.0.fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "485": {
+    "inputs": {
+      "low_threshold": 0.7000000000000001,
+      "high_threshold": 0.8,
+      "image": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "Canny",
+    "_meta": {
+      "title": "Canny"
+    }
+  },
+  "488": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": true,
+      "destination": [
+        "323",
+        0
+      ],
+      "source": [
+        "448",
+        0
+      ],
+      "mask": [
+        "414",
+        0
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "489": {
+    "inputs": {
+      "images": [
+        "488",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "492": {
+    "inputs": {
+      "prompt": "__colorsJasper__",
+      "seed": 611385897717923
+    },
+    "class_type": "BadmanWildCardProcessor",
+    "_meta": {
+      "title": "Wildcard Processor (Badman)"
+    }
+  },
+  "493": {
+    "inputs": {
+      "prompt": "__colorsJasper__",
+      "seed": 1088470822388078
+    },
+    "class_type": "BadmanWildCardProcessor",
+    "_meta": {
+      "title": "Wildcard Processor (Badman)"
+    }
+  },
+  "494": {
+    "inputs": {
+      "prompt": "__detailCards__",
+      "seed": 116690457105125
+    },
+    "class_type": "BadmanWildCardProcessor",
+    "_meta": {
+      "title": "Wildcard Processor (Badman)"
+    }
+  },
+  "495": {
+    "inputs": {
+      "prompt": "__detailCards2__",
+      "seed": 326126693173604
+    },
+    "class_type": "BadmanWildCardProcessor",
+    "_meta": {
+      "title": "Wildcard Processor (Badman)"
+    }
+  },
+  "498": {
+    "inputs": {
+      "value": [
+        "219",
+        0
+      ]
+    },
+    "class_type": "Badman_Print",
+    "_meta": {
+      "title": "Print (Badman)"
+    }
+  },
+  "500": {
+    "inputs": {
+      "radius": 0,
+      "shape": "box",
+      "masks": [
+        "138",
+        1
+      ]
+    },
+    "class_type": "BadmanDilateErodeMask",
+    "_meta": {
+      "title": "Dilate Erode Mask (Badman)"
+    }
+  },
+  "501": {
+    "inputs": {
+      "amount": 6,
+      "device": "gpu",
+      "mask": [
+        "500",
+        0
+      ]
+    },
+    "class_type": "BadmanMaskBlur",
+    "_meta": {
+      "title": "Mask Blur (Badman)"
+    }
+  },
+  "502": {
+    "inputs": {
+      "factor": 0.3,
+      "method": "luminance (Rec.709)",
+      "image": [
+        "452",
+        0
+      ]
+    },
+    "class_type": "BadmanDesaturate",
+    "_meta": {
+      "title": "Image Desaturate (Badman)"
+    }
+  },
+  "503": {
+    "inputs": {
+      "value": [
+        "514",
+        0
+      ]
+    },
+    "class_type": "BadmanStringToInteger",
+    "_meta": {
+      "title": "StringToInteger (Badman)"
+    }
+  },
+  "504": {
+    "inputs": {
+      "value": [
+        "513",
+        0
+      ]
+    },
+    "class_type": "BadmanStringToInteger",
+    "_meta": {
+      "title": "StringToInteger (Badman)"
+    }
+  },
+  "505": {
+    "inputs": {
+      "control_net_name": "t2i-adapter-depth-midas-sdxl-1.0.fp16.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "Load ControlNet Model"
+    }
+  },
+  "506": {
+    "inputs": {
+      "blur_radius": 1,
+      "sigma": 1,
+      "image": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "ImageBlur",
+    "_meta": {
+      "title": "Image Blur"
+    }
+  },
+  "507": {
+    "inputs": {
+      "brightness": 1.25,
+      "image": [
+        "335",
+        0
+      ]
+    },
+    "class_type": "BadmanBrightness",
+    "_meta": {
+      "title": "Image Brightness Adjust (Badman)"
+    }
+  },
+  "512": {
+    "inputs": {
+      "value": "Rabbit"
+    },
+    "class_type": "Badman_String",
+    "_meta": {
+      "title": "PromptTokenInput"
+    }
+  },
+  "513": {
+    "inputs": {
+      "value": "5005441"
+    },
+    "class_type": "Badman_String",
+    "_meta": {
+      "title": "ColorInputBody"
+    }
+  },
+  "514": {
+    "inputs": {
+      "value": "12227444"
+    },
+    "class_type": "Badman_String",
+    "_meta": {
+      "title": "ColorInputDetails"
+    }
+  },
+  "515": {
+    "inputs": {
+      "value": 0
+    },
+    "class_type": "INTConstant",
+    "_meta": {
+      "title": "GlobalSeed"
+    }
+  }
+}

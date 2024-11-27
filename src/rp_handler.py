@@ -219,7 +219,7 @@ def process_output_images(outputs, job_id):
 
     The function works as follows:
     - It first determines the output path for the images from an environment variable,
-      defaulting to "/comfyui/output" if not set.
+      defaulting to "/ComfyUI/output" if not set.
     - It then iterates through the outputs to find the filenames of the generated images.
     - After confirming the existence of the image in the output folder, it checks if the
       AWS S3 bucket is configured via the BUCKET_ENDPOINT_URL environment variable.
@@ -230,7 +230,7 @@ def process_output_images(outputs, job_id):
     """
 
     # The path where ComfyUI stores the generated images
-    COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/comfyui/output")
+    COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/ComfyUI/output")
 
     output_images = {}
 

@@ -1,8 +1,6 @@
 runpod_worker_comfy:
   base_path: /runpod-volume
   checkpoints: models/checkpoints/
-  input: inputs/
-  ipadapter: models/ipadapter
   clip: models/clip/
   clip_vision: models/clip_vision/
   configs: models/configs/
