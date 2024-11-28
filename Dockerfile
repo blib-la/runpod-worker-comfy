@@ -125,9 +125,10 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git /comfyui/custo
 
 RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git custom_nodes/masquerade-nodes-comfyui
 
-RUN git clone https://github.com/melMass/comfy_mtb.git /comfyui/custom_nodes/comfy_mtb && \
+# Use Gazai's MTB node since the original one takes too long to compile due to the numba issue.
+RUN git clone https://github.com/gazai-io/comfy_mtb.git /comfyui/custom_nodes/comfy_mtb && \
     cd /comfyui/custom_nodes/comfy_mtb && \
-    pip install -r requirements.txt && \
+    pip install -r requirements.txt
 
 RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git /comfyui/custom_nodes/ComfyUI-VideoHelperSuite && \
     cd /comfyui/custom_nodes/ComfyUI-VideoHelperSuite && \
