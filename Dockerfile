@@ -128,7 +128,6 @@ RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git custom
 RUN git clone https://github.com/melMass/comfy_mtb.git /comfyui/custom_nodes/comfy_mtb && \
     cd /comfyui/custom_nodes/comfy_mtb && \
     pip install -r requirements.txt && \
-    python install.py
 
 RUN git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git /comfyui/custom_nodes/ComfyUI-VideoHelperSuite && \
     cd /comfyui/custom_nodes/ComfyUI-VideoHelperSuite && \
