@@ -250,7 +250,7 @@ def process_output_images(outputs, job_id):
     if os.path.exists(local_image_path):
         if os.environ.get("BUCKET_ENDPOINT_URL", False):
             # URL to image in AWS S3
-            image = rp_upload.upload_image(job_id, local_image_path)
+            image = upload_image(job_id, local_image_path)
             print(
                 "runpod-worker-comfy - the image was generated and uploaded to AWS S3"
             )
@@ -271,6 +271,65 @@ def process_output_images(outputs, job_id):
             "status": "error",
             "message": f"the image does not exist in the specified output folder: {local_image_path}",
         }
+
+def upload_image(
+    job_id,
+    image_location,
+    result_index=0,
+    results_list=None,
+    bucket_name: Optional[str] = None,
+):
+    """
+    Upload a single file to bucket storage.
+    Edited function to use the job_id as the key for the image.
+    """
+    image_name = str(uuid.uuid4())[:8]
+    boto_client, _ = get_boto_client()
+    file_extension = os.path.splitext(image_location)[1]
+    content_type = "image/" + file_extension.lstrip(".")
+
+    with open(image_location, "rb") as input_file:
+        output = input_file.read()
+
+    if boto_client is None:
+        # Save the output to a file
+        print("No bucket endpoint set, saving to disk folder 'simulated_uploaded'")
+        print("If this is a live endpoint, please reference the following:")
+        print(
+            "https://github.com/runpod/runpod-python/blob/main/docs/serverless/utils/rp_upload.md"
+        )  # pylint: disable=line-too-long
+
+        os.makedirs("simulated_uploaded", exist_ok=True)
+        sim_upload_location = f"simulated_uploaded/{image_name}{file_extension}"
+
+        with open(sim_upload_location, "wb") as file_output:
+            file_output.write(output)
+
+        if results_list is not None:
+            results_list[result_index] = sim_upload_location
+
+        return sim_upload_location
+
+    bucket = bucket_name if bucket_name else time.strftime("%m-%y")
+    s3_key = job_id.replace('sync-', '')
+
+    boto_client.put_object(
+        Bucket=f"{bucket}",
+        Key=f"{s3_key}{file_extension}",
+        Body=output,
+        ContentType=content_type,
+    )
+
+    presigned_url = boto_client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": f"{bucket}", "Key": f"{job_id}/{image_name}{file_extension}"},
+        ExpiresIn=604800,
+    )
+
+    if results_list is not None:
+        results_list[result_index] = presigned_url
+
+    return presigned_url
 
 
 def handler(job):
