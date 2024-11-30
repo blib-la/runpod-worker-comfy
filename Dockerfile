@@ -53,6 +53,20 @@ ADD *snapshot*.json /
 RUN mkdir -p /comfyui/models/sams/
 RUN wget -O /comfyui/models/sams/sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
 
+
+# Créer les répertoires nécessaires
+RUN mkdir -p /comfyui/models/ultralytics/bbox/
+RUN mkdir -p /comfyui/models/ultralytics/segm/
+
+# Télécharger le modèle de détection des visages
+RUN wget -O /comfyui/models/ultralytics/bbox/face_yolov8m.pt "https://huggingface.co/westfish/yolov8m-face/resolve/main/yolov8m-face.pt"
+
+# Télécharger le modèle de détection des mains
+RUN wget -O /comfyui/models/ultralytics/bbox/hand_yolov8s.pt "https://huggingface.co/andylau/yolov8s-hand/resolve/main/yolov8s-hand.pt"
+
+# Télécharger le modèle de segmentation des personnes
+RUN wget -O /comfyui/models/ultralytics/segm/person_yolov8m-seg.pt "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m-seg.pt"
+
 # Restore the snapshot to install custom nodes
 RUN /restore_snapshot.sh
 
@@ -72,7 +86,7 @@ WORKDIR /comfyui
 RUN mkdir -p models/checkpoints models/vae
 
 # Download checkpoints/sd_xl_base_1.0.safetensors
-RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
+#RUN wget -O models/checkpoints/sd_xl_base_1.0.safetensors https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors
 
 # Download checkpoints/vae/LoRA to include in image based on model type
 RUN if [ "$MODEL_TYPE" = "sdxl" ]; then \
