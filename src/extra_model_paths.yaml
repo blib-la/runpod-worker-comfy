@@ -1,5 +1,5 @@
 runpod_worker_comfy:
-  base_path: /runpod-volume
+  base_path: /runpod-volume/ComfyUI/
   checkpoints: models/checkpoints/
   clip: models/clip/
   clip_vision: models/clip_vision/
@@ -10,3 +10,12 @@ runpod_worker_comfy:
   upscale_models: models/upscale_models/
   vae: models/vae/
   unet: models/unet/
+  ipadapter: models/ipadapter/
+  insighface: models/insighface/
+  instantid: models/instantid/
+  style_models: style_models/
+  ultralytics: models/ultralytics/
+  
+
+
+
