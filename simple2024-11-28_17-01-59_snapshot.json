@@ -1,8 +1,8 @@
 {
     "comfyui": "bf2650a80e5a7a888da206eab45c53dbb22940f7",
     "git_custom_nodes": {
-        "https://github.com/ltdrdata/ComfyUI-Impact-Pack": {
-            "hash": "c9b3aecd1af14f39b2dd311f096a24dbea18d5aa",
+        "https://github.com/theUpsider/ComfyUI-Logic": {
+            "hash": "42d4f3df45fb7f0dd6e2201a14c07d4dd09f235d",
             "disabled": false
         }
     },
