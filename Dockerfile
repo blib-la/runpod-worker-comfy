@@ -49,7 +49,9 @@ RUN chmod +x /start.sh /restore_snapshot.sh
 ADD *snapshot*.json /
 
 # EDIT Copier les modèles téléchargés dans l'image Docker
-COPY models/ /comfyui/models/
+# Avant l'exécution de restore_snapshot.sh // Idealement il faut qu'on stocke quelque part sur S3 les models nécessaires aux custom nodes? 
+RUN mkdir -p /comfyui/models/sams/
+RUN wget -O /comfyui/models/sams/sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
 
 # Restore the snapshot to install custom nodes
 RUN /restore_snapshot.sh
