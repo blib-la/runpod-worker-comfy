@@ -59,10 +59,10 @@ RUN mkdir -p /comfyui/models/ultralytics/bbox/
 RUN mkdir -p /comfyui/models/ultralytics/segm/
 
 # Télécharger le modèle de détection des visages
-RUN wget -O /comfyui/models/ultralytics/bbox/face_yolov8m.pt "https://huggingface.co/westfish/yolov8m-face/resolve/main/yolov8m-face.pt"
+RUN wget -O /comfyui/models/ultralytics/bbox/face_yolov8m.pt "https://huggingface.co/xingren23/comfyflow-models/resolve/976de8449674de379b02c144d0b3cfa2b61482f2/ultralytics/bbox/face_yolov8m.pt"
 
 # Télécharger le modèle de détection des mains
-RUN wget -O /comfyui/models/ultralytics/bbox/hand_yolov8s.pt "https://huggingface.co/andylau/yolov8s-hand/resolve/main/yolov8s-hand.pt"
+RUN wget -O /comfyui/models/ultralytics/bbox/hand_yolov8s.pt "https://huggingface.co/xingren23/comfyflow-models/resolve/976de8449674de379b02c144d0b3cfa2b61482f2/ultralytics/bbox/hand_yolov8s.pt"
 
 # Télécharger le modèle de segmentation des personnes
 RUN wget -O /comfyui/models/ultralytics/segm/person_yolov8m-seg.pt "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8m-seg.pt"
