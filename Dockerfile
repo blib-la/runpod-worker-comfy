@@ -48,6 +48,9 @@ RUN chmod +x /start.sh /restore_snapshot.sh
 # Optionally copy the snapshot file
 ADD *snapshot*.json /
 
+# EDIT Copier les modèles téléchargés dans l'image Docker
+COPY models/ /comfyui/models/
+
 # Restore the snapshot to install custom nodes
 RUN /restore_snapshot.sh
 
