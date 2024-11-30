@@ -1,6 +1,6 @@
 # Stage 1: Base image with common dependencies
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
-
+#no snapFROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04-slim AS base
 # Prevents prompts from packages asking for user input during installation
 ENV DEBIAN_FRONTEND=noninteractive
 # Prefer binary wheels over source distributions for faster pip installations
@@ -11,14 +11,24 @@ ENV PYTHONUNBUFFERED=1
 ENV CMAKE_BUILD_PARALLEL_LEVEL=8
 
 # Install Python, git and other necessary tools
-RUN apt-get update && apt-get install -y \
+#RUN apt-get update && apt-get install -y \#
+ ##   python3.10 \
+ #   python3-pip \
+  #  git \
+ #   wget \
+  #  libgl1 \
+  #  && ln -sf /usr/bin/python3.10 /usr/bin/python \
+  #  && ln -sf /usr/bin/pip3 /usr/bin/pip
+
+    RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.10 \
     python3-pip \
     git \
     wget \
     libgl1 \
     && ln -sf /usr/bin/python3.10 /usr/bin/python \
-    && ln -sf /usr/bin/pip3 /usr/bin/pip
+    && ln -sf /usr/bin/pip3 /usr/bin/pip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Clean up to reduce image size
 RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
@@ -111,7 +121,7 @@ WORKDIR /comfyui
 FROM base as final
 
 # Copy models from stage 2 to the final image
-COPY --from=downloader /comfyui/models /comfyui/models
+#COPY --from=downloader /comfyui/models /comfyui/models
 
 # Start container
 CMD ["/start.sh"]
