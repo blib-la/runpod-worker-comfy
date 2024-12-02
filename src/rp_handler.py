@@ -168,8 +168,17 @@ def queue_workflow(workflow):
     # The top level element "prompt" is required by ComfyUI
     data = json.dumps({"prompt": workflow}).encode("utf-8")
 
-    req = urllib.request.Request(f"http://{COMFY_HOST}/prompt", data=data)
-    return json.loads(urllib.request.urlopen(req).read())
+    retries = 0
+    while retries < COMFY_API_AVAILABLE_MAX_RETRIES:
+        try:
+            req = urllib.request.Request(f"http://{COMFY_HOST}/prompt", data=data)
+            return json.loads(urllib.request.urlopen(req).read())
+        except Exception as e:
+            print(f"Error queuing workflow: {str(e)}. Retrying...")
+            time.sleep(COMFY_API_AVAILABLE_INTERVAL_MS / 1000)
+            retries += 1
+
+    raise Exception("Max retries reached while queuing workflow")
 
 
 def get_history(prompt_id):
