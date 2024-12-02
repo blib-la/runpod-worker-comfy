@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: staging-2023
+    runs-on: [self-hosted]
 
     env:
       DOCKERHUB_REPO: test_cyril
