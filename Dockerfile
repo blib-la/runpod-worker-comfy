@@ -1,12 +1,12 @@
 # Stage 1: Base image with common dependencies
 #no snapFROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 as base
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04-slim AS base
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 AS base
 # Prevents prompts from packages asking for user input during installation
 ENV DEBIAN_FRONTEND=noninteractive
 # Prefer binary wheels over source distributions for faster pip installations
 ENV PIP_PREFER_BINARY=1
 # Ensures output from python is printed immediately to the terminal without buffering
-ENV PYTHONUNBUFFERED=1 
+ENV PYTHONUNBUFFERED=1
 # Speed up some cmake builds
 ENV CMAKE_BUILD_PARALLEL_LEVEL=8
 
@@ -59,7 +59,7 @@ RUN chmod +x /start.sh /restore_snapshot.sh
 ADD *snapshot*.json /
 
 # EDIT Copier les modèles téléchargés dans l'image Docker
-# Avant l'exécution de restore_snapshot.sh // Idealement il faut qu'on stocke quelque part sur S3 les models nécessaires aux custom nodes? 
+# Avant l'exécution de restore_snapshot.sh // Idealement il faut qu'on stocke quelque part sur S3 les models nécessaires aux custom nodes?
 #RUN mkdir -p /comfyui/models/sams/
 #RUN wget -O /comfyui/models/sams/sam_vit_b_01ec64.pth "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
 
