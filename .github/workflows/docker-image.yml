@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: staging-2023
 
+    env:
+      DOCKERHUB_REPO: test_cyril
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
