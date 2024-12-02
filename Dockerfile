@@ -123,7 +123,7 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git /comfyui/custo
     pip install -r requirements.txt && \
     python install-manual.py
 
-RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git custom_nodes/masquerade-nodes-comfyui
+RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git /comfyui/custom_nodes/masquerade-nodes-comfyui
 
 # Use Gazai's MTB node since the original one takes too long to compile due to the numba issue.
 RUN git clone https://github.com/gazai-io/comfy_mtb.git /comfyui/custom_nodes/comfy_mtb && \
