@@ -6,18 +6,16 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
       - REPOSITORY_URI=public.ecr.aws/q4s0f1p3/$IMAGE_REPO_NAME
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=$(git describe --tags --abbrev=0 2>/dev/null || git rev-parse --short=4 HEAD)
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build --build-arg MODEL_TYPE=$MODEL_TYPE --build-arg HUGGINGFACE_ACCESS_TOKEN=$HUGGINGFACE_ACCESS_TOKEN --target final -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$MODEL_TYPE
+      - docker build --build-arg MODEL_TYPE=$MODEL_TYPE --build-arg HUGGINGFACE_ACCESS_TOKEN=$HUGGINGFACE_ACCESS_TOKEN --target final -t $REPOSITORY_URI:$IMAGE_TAG-$MODEL_TYPE .
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:$MODEL_TYPE
+      - docker push $REPOSITORY_URI:$IMAGE_TAG-$MODEL_TYPE
       - echo Writing image definitions file...
-      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDefinitions.json
+      - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG-$MODEL_TYPE > imageDefinitions.json
