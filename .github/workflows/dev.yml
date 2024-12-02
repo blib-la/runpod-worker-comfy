@@ -8,7 +8,7 @@ on:
 
 jobs:
   dev:
-    runs-on: ubuntu-latest-l
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v3
