@@ -8,7 +8,7 @@ on:
 
 jobs:
   dev:
-    runs-on: self-hosted
+    runs-on: staging-2023
     steps:
       - name: Checkout
         uses: actions/checkout@v3
