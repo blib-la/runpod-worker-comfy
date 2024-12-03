@@ -23,8 +23,8 @@ jobs:
         with:
           version: "lab:latest"
           driver: cloud
-          endpoint: mindozacreative/test001
-#          install: true
+          endpoint: "${{ vars.DOCKER_USER }}/test001"
+          install: true
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
