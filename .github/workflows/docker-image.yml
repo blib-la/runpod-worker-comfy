@@ -18,6 +18,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Achri baby !
+        run: |
+          uname -m
+
       - name: Install Latest Docker Buildx
         run: |
           curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 -o docker-buildx
