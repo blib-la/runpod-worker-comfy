@@ -21,13 +21,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver: cloud
+          driver: docker
+
+      - name: List Docker Buildx Builders
+        run: docker buildx ls
 
       - name: Create Docker Buildx Builder
         run: docker buildx create --name my-cloud-builder --driver cloud --use mindozacreative/test001
 
-      - name: List Docker Buildx Builders
-        run: docker buildx ls
+
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
