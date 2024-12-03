@@ -23,7 +23,7 @@ jobs:
         with:
           version: "lab:latest"
           driver: cloud
-          endpoint: "mindozacreative/test001"
+          endpoint: mindozacreative/test001
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
