@@ -23,11 +23,8 @@ jobs:
         with:
           version: "lab:latest"
           driver: cloud
-          endpoint: "mindozacreative/test001"
+          endpoint: mindozacreative/test001
           install: true
-
-      - name: List Docker Buildx Builders
-        run: docker buildx ls
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
