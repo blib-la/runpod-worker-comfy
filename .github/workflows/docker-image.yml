@@ -33,15 +33,12 @@ jobs:
         run: |
           docker info
 
-#      - name: buildx version
-#        run: |
-#          docker buildx version
-#
-#      - name: List Docker Buildx Builders
-#        run: docker buildx version
-#
-#      - name: List Docker Buildx Builders
-#        run: docker buildx ls
+      - name: buildx version
+        run: |
+          docker buildx version
+
+      - name: List Docker Buildx Builders
+        run: docker buildx ls
 
       - name: Create Docker Buildx Builder
         run: docker buildx create --driver cloud --platform linux/amd64 --use "mindozacreative/test001"
