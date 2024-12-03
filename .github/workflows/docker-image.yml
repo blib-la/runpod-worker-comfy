@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Create Docker Buildx Builder
-        run: docker buildx create --name my-cloud-builder --driver cloud --use
+        run: docker buildx create --name my-cloud-builder --driver cloud --use mindozacreative/test001
 
       - name: List Docker Buildx Builders
         run: docker buildx ls
