@@ -18,25 +18,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install Latest Docker CLI
+      - name: Install Latest Docker Buildx
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          docker --version
+          curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 -o docker-buildx
+          sudo mv docker-buildx /usr/local/lib/docker/cli-plugins/
+          chmod a+x /usr/local/lib/docker/cli-plugins/docker-buildx
 
       - name: docker info
         run: |
           docker info
-
-      - name: Install Latest Docker Buildx
-        run: |
-          mkdir -p ~/.docker/cli-plugins/
-          curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
-          chmod a+x ~/.docker/cli-plugins/docker-buildx
-
-      - name: Add Buildx to PATH
-        run: |
-          ls ~/.docker/
 
       - name: buildx version
         run: |
