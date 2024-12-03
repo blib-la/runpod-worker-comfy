@@ -7,8 +7,6 @@ on:
 jobs:
   docker:
     runs-on: [staging-2023]
-    container:
-      image: ubuntu-latest
 
     steps:
       - name: Checkout repository
