@@ -21,8 +21,9 @@ jobs:
       - name: Install Latest Docker Buildx
         run: |
           curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 -o docker-buildx
-          sudo mv docker-buildx /usr/local/lib/docker/cli-plugins/
-          chmod a+x /usr/local/lib/docker/cli-plugins/docker-buildx
+          sudo mkdir -p ~/.docker/cli-plugins
+          sudo mv docker-buildx  ~/.docker/cli-plugins/
+          chmod a+x  ~/.docker/cli-plugins/docker-buildx
 
       - name: docker info
         run: |
