@@ -18,6 +18,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Install Latest Docker CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+          docker --version
+
+      - name: docker info
+        run: |
+          docker info
+
       - name: Install Latest Docker Buildx
         run: |
           mkdir -p ~/.docker/cli-plugins/
@@ -26,8 +36,7 @@ jobs:
 
       - name: Add Buildx to PATH
         run: |
-          export PATH=$PATH:~/.docker/cli-plugins/
-          docker buildx version
+          ls ~/.docker/
 
       - name: buildx version
         run: |
