@@ -2,8 +2,6 @@ variable "DOCKERHUB_REPO" {
   default = "timpietruskyblibla"
 }
 
-DOCKERHUB_REPO="test_cyril"
-
 variable "DOCKERHUB_IMG" {
   default = "runpod-worker-comfy"
 }
