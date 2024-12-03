@@ -7,6 +7,8 @@ on:
 jobs:
   docker:
     runs-on: [self-hosted]
+    container:
+      image: ubuntu:latest
 
     steps:
       - name: Checkout repository
@@ -17,21 +19,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Achri baby !
-        run: |
-          uname -m
-
-#      - name: Install Latest Docker Buildx
-#        run: |
-#          curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 -o docker-buildx
-#          sudo mkdir -p ~/.docker/cli-plugins
-#          sudo mv docker-buildx  ~/.docker/cli-plugins/
-#          chmod a+x  ~/.docker/cli-plugins/docker-buildx
-
-      - name: docker info
-        run: |
-          docker info
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
