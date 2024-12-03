@@ -23,6 +23,14 @@ jobs:
           mkdir -p ~/.docker/cli-plugins/
           curl -SL https://github.com/docker/buildx/releases/latest/download/buildx-linux-amd64 -o ~/.docker/cli-plugins/docker-buildx
           chmod a+x ~/.docker/cli-plugins/docker-buildx
+
+      - name: Add Buildx to PATH
+        run: |
+          export PATH=$PATH:~/.docker/cli-plugins/
+          docker buildx version
+
+      - name: buildx version
+        run: |
           docker buildx version
 
       - name: List Docker Buildx Builders
