@@ -33,25 +33,25 @@ jobs:
         run: |
           docker info
 
-      - name: buildx version
-        run: |
-          docker buildx version
-
-      - name: List Docker Buildx Builders
-        run: docker buildx version
-
-      - name: List Docker Buildx Builders
-        run: docker buildx ls
+#      - name: buildx version
+#        run: |
+#          docker buildx version
+#
+#      - name: List Docker Buildx Builders
+#        run: docker buildx version
+#
+#      - name: List Docker Buildx Builders
+#        run: docker buildx ls
 
       - name: Create Docker Buildx Builder
-        run: docker buildx create --name my-cloud-builder --driver cloud --use mindozacreative/test001
+        run: docker buildx create --name my-cloud-builder --driver cloud --use "mindozacreative/test001"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           version: "lab:latest"
           driver: cloud
-          endpoint: mindozacreative/test001
+          endpoint: "mindozacreative/test001"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
