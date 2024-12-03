@@ -35,23 +35,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: buildx version
-        run: |
-          docker buildx version
+        with:
+          version: "latest"
+          endpoint: "mindozacreative/test001"
 
       - name: List Docker Buildx Builders
         run: docker buildx ls
-
-      - name: Create Docker Buildx Builder
-        run: docker buildx create --driver cloud --platform linux/amd64 --use "mindozacreative/test001"
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "mindozacreative/test001"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
