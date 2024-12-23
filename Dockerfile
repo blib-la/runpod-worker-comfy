@@ -121,7 +121,7 @@ RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git /comfyui/custo
     git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack impact_subpack && \
     apt-get update && apt-get install -y libgl1 libglib2.0-0 libsm6 libxrender1 libxext6 && \
     pip install -r requirements.txt && \
-    python install-manual.py
+    python install.py
 
 RUN git clone https://github.com/BadCafeCode/masquerade-nodes-comfyui.git /comfyui/custom_nodes/masquerade-nodes-comfyui
 
