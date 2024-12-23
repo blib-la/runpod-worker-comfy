@@ -173,7 +173,7 @@ def queue_workflow(workflow):
         try:
             req = urllib.request.Request(f"http://{COMFY_HOST}/prompt", data=data)
             return json.loads(urllib.request.urlopen(req).read())
-        except Exception as e:
+        except requests.RequestException as e:
             print(f"Error queuing workflow: {str(e)}. Retrying...")
             time.sleep(COMFY_API_AVAILABLE_INTERVAL_MS / 1000)
             retries += 1
