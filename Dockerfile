@@ -118,8 +118,12 @@ RUN git clone https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI.git /comfyui
 
 RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git /comfyui/custom_nodes/ComfyUI-Impact-Pack && \
     cd /comfyui/custom_nodes/ComfyUI-Impact-Pack && \
-    git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack impact_subpack && \
     apt-get update && apt-get install -y libgl1 libglib2.0-0 libsm6 libxrender1 libxext6 && \
+    pip install -r requirements.txt && \
+    python install.py
+
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Subpack /comfyui/custom_nodes/ComfyUI-Impact-Subpack && \
+    cd /comfyui/custom_nodes/ComfyUI-Impact-Subpack && \
     pip install -r requirements.txt && \
     python install.py
 
