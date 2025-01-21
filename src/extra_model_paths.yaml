@@ -10,3 +10,6 @@ runpod_worker_comfy:
   upscale_models: models/upscale_models/
   vae: models/vae/
   unet: models/unet/
+  diffusion_models: |
+    models/diffusion_models
+    models/unet
