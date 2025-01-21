@@ -42,10 +42,6 @@ ADD src/extra_model_paths.yaml ./
 # Go back to the root
 WORKDIR /
 
-# Echo all files under /runpod-volume
-RUN echo "Listing all files under /runpod-volume:" && \
-    find /runpod-volume -type f
-
 # Add scripts
 ADD src/start.sh src/restore_snapshot.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh /restore_snapshot.sh
@@ -64,15 +60,6 @@ FROM base as downloader
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
-
-# Create necessary directories
-RUN mkdir -p models/checkpoints models/vae
-
-# Download checkpoints/vae/LoRA to include in image based on model type
-RUN test -f /runpod-volume/models/unet/flux_dev_fp8.safetensors || wget -O models/unet/flux1-dev.safetensors https://huggingface.co/Aitrepreneur/FLX/resolve/main/flux1-dev-fp8.safetensors?download=true && \
-    test -f /runpod-volume/models/clip/clip_l.safetensors || wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
-    test -f /runpod-volume/models/clip/t5xxl_fp8_e4m3fn.safetensors || wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
-    test -f /runpod-volume/models/vae/ae.safetensors || wget -O models/vae/ae.safetensors https://huggingface.co/Aitrepreneur/FLX/resolve/main/ae.safetensors
 
 # Stage 3: Final image
 FROM base as final
