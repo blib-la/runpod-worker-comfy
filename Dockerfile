@@ -42,6 +42,10 @@ ADD src/extra_model_paths.yaml ./
 # Go back to the root
 WORKDIR /
 
+# Echo all files under /runpod-volume
+RUN echo "Listing all files under /runpod-volume:" && \
+    find /runpod-volume -type f
+
 # Add scripts
 ADD src/start.sh src/restore_snapshot.sh src/rp_handler.py test_input.json ./
 RUN chmod +x /start.sh /restore_snapshot.sh
