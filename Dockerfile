@@ -65,7 +65,7 @@ WORKDIR /comfyui
 RUN mkdir -p models/checkpoints models/vae
 
 # Download checkpoints/vae/LoRA to include in image based on model type
-RUN test -f /runpod-volume/models/unet/flux1-dev.safetensors || wget -O models/unet/flux1-dev.safetensors https://huggingface.co/Aitrepreneur/FLX/resolve/main/flux1-dev-fp8.safetensors?download=true && \
+RUN test -f /runpod-volume/models/unet/flux_dev_fp8.safetensors || wget -O models/unet/flux1-dev.safetensors https://huggingface.co/Aitrepreneur/FLX/resolve/main/flux1-dev-fp8.safetensors?download=true && \
     test -f /runpod-volume/models/clip/clip_l.safetensors || wget -O models/clip/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
     test -f /runpod-volume/models/clip/t5xxl_fp8_e4m3fn.safetensors || wget -O models/clip/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
     test -f /runpod-volume/models/vae/ae.safetensors || wget -O models/vae/ae.safetensors https://huggingface.co/Aitrepreneur/FLX/resolve/main/ae.safetensors
