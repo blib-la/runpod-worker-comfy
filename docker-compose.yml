@@ -1,6 +1,6 @@
 services:
   comfyui-worker:
-    image: timpietruskyblibla/runpod-worker-comfy:3.4.0-sdxl
+    image: timpietruskyblibla/runpod-worker-comfy:3.4.0-flux1-dev
     deploy:
       resources:
         reservations:
@@ -9,7 +9,7 @@ services:
               count: all
               capabilities: [gpu]
     environment:
-      - SERVE_API_LOCALLY=true
+      - SERVE_API_LOCALLY=false
     ports:
       - "8000:8000"
       - "8188:8188"
