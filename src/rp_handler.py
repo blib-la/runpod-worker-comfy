@@ -254,6 +254,7 @@ def process_output_images(outputs, job_id):
             print(
                 "runpod-worker-comfy - the image was generated and uploaded to AWS S3"
             )
+            print(f"Generated Image URL: {image}")
         else:
             # base64 image
             image = base64_encode(local_image_path)
