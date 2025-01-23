@@ -59,7 +59,12 @@ CMD ["/start.sh"]
 FROM base as downloader
 
 # Download PuLID
-RUN mkdir -p /comfyui/models/pulid
+
+WORKDIR /comfyui
+RUN mkdir -p models
+WORKDIR /comfyui/models
+RUN git lfs install
+RUN git clone https://huggingface.co/Aitrepreneur/insightface
 RUN wget -O /comfyui/models/pulid/pulid_flux_v0.9.0.safetensors https://huggingface.co/Aitrepreneur/FLX/resolve/main/pulid_flux_v0.9.0.safetensors?download=true
 
 # Change working directory to ComfyUI
