@@ -9,7 +9,7 @@ services:
               count: all
               capabilities: [gpu]
     environment:
-      - SERVE_API_LOCALLY=false
+      - SERVE_API_LOCALLY=true
     ports:
       - "8000:8000"
       - "8188:8188"
