@@ -213,7 +213,7 @@ def process_output_images(outputs, job_id):
         job_id (str): The unique identifier for the job.
 
     Returns:
-        dict: A dictionary with the status ('success' or 'error') and the message,
+        array: An array of dictionaries with the status ('success' or 'error') and the message,
               which is either the URL to the image in the AWS S3 bucket or a base64
               encoded string of the image. In case of error, the message details the issue.
 
@@ -229,20 +229,56 @@ def process_output_images(outputs, job_id):
       with a message indicating the missing image file.
     """
 
-    # The path where ComfyUI stores the generated images
-    COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/comfyui/output")
-
-    output_images = {}
+    output_images = []
 
     for node_id, node_output in outputs.items():
         if "images" in node_output:
             for image in node_output["images"]:
-                output_images = os.path.join(image["subfolder"], image["filename"])
+                output_image = os.path.join(image["subfolder"], image["filename"])
+                output_images.append(get_image_data(output_image))
 
     print(f"runpod-worker-comfy - image generation is done")
+    return output_images
+
+def get_image_data(output_image):
+    # The path where ComfyUI stores the generated images
+    COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/comfyui/output")
 
     # expected image output folder
-    local_image_path = f"{COMFY_OUTPUT_PATH}/{output_images}"
+    local_image_path = f"{COMFY_OUTPUT_PATH}/{output_image}"
+
+    # get the image type from the file prefix until the first underscore
+    image_type = output_image.split("_")[0]
+
+    print(f"runpod-worker-comfy - {local_image_path}")
+
+    # The image is in the output folder
+    if os.path.exists(local_image_path):
+        # base64 image
+        image = base64_encode(local_image_path)
+        print(
+            "runpod-worker-comfy - the image was generated and converted to base64"
+        )
+
+        return {
+            "status": "success",
+            "image_type": image_type,
+            "image_data": image,
+        }
+    else:
+        print("runpod-worker-comfy - the image does not exist in the output folder")
+        return {
+            "status": "error",
+            "message": f"the image does not exist in the specified output folder: {local_image_path}",
+        }
+
+# UNUSED FOR NOW!
+def add_image_to_output(output_image, job_id):
+    # The path where ComfyUI stores the generated images
+    COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/comfyui/output")
+
+    # expected image output folder
+    local_image_path = f"{COMFY_OUTPUT_PATH}/{output_image}"
 
     print(f"runpod-worker-comfy - {local_image_path}")
 
@@ -340,7 +376,7 @@ def handler(job):
     # Get the generated image and return it as URL in an AWS bucket or as base64
     images_result = process_output_images(history[prompt_id].get("outputs"), job["id"])
 
-    result = {**images_result, "refresh_worker": REFRESH_WORKER}
+    result = {"images": images_result, "refresh_worker": REFRESH_WORKER}
 
     return result
 

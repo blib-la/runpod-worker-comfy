@@ -10,3 +10,5 @@ runpod_worker_comfy:
   upscale_models: models/upscale_models/
   vae: models/vae/
   unet: models/unet/
+  ipadapter: models/ipadapter/
+  deepbump: models/deepbump/

@@ -1,0 +1,4 @@
+{
+  "docker.commands.build": "${containerCommand} build --platform linux/amd64 --pull --rm -f \"${dockerfile}\" -t ${tag} \"${context}\"",
+  "docker.commands.run": "${containerCommand} run --platform linux/amd64 --rm -d ${tag}"
+}
