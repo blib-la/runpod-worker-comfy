@@ -1,5 +1,7 @@
 # Stage 1: Base image with common dependencies
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04 AS base
+# TRY THIS? nvidia/cuda:12.8.0-cudnn-runtime-ubuntu24.04
+# OR OTHERWISE: nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
 
 # Prevents prompts from packages asking for user input during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -53,6 +55,9 @@ ADD *snapshot*.json /
 
 # Restore the snapshot to install custom nodes
 RUN /restore_snapshot.sh
+
+# Remove the ComfyUI-Manager folder, so it definitely won't auto start (even though the --disable-auto-launch flag should already prevent that, which it doesn't)
+RUN rm -rf /comfyui/custom_nodes/ComfyUI-Manager 
 
 # Start container
 CMD ["/start.sh"]

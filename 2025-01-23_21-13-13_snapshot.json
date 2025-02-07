@@ -1,37 +1,12 @@
 {
   "comfyui": "ee9547ba31f5f2c1de0211a09c3fb829bd8e25e6",
   "git_custom_nodes": {
-    "https://github.com/jakechai/ComfyUI-JakeUpgrade": {
-      "hash": "816a6374e775f3b01335d0cb8044c0bfc216a0c4",
-      "disabled": false
-    },
-    "https://github.com/spinagon/ComfyUI-seamless-tiling": {
-      "hash": "c06e4e7ef9f796f6567116dbfed7f32e238c8437",
-      "disabled": false
-    },
-    "https://github.com/cubiq/ComfyUI_IPAdapter_plus": {
-      "hash": "b188a6cb39b512a9c6da7235b880af42c78ccd0d",
-      "disabled": false
-    },
-    "https://github.com/chflame163/ComfyUI_LayerStyle": {
-      "hash": "84d357ad826731a931c305bf11a1101b8ac2976c",
-      "disabled": false
-    },
     "https://github.com/melMass/comfy_mtb": {
       "hash": "b7ca8ed1c6e117b71afd7696f55dcc3dbd5bad08",
-      "disabled": false
-    },
-    "https://github.com/rgthree/rgthree-comfy": {
-      "hash": "5d771b8b56a343c24a26e8cea1f0c87c3d58102f",
-      "disabled": false
-    },
-    "https://github.com/WASasquatch/was-node-suite-comfyui": {
-      "hash": "056badacda52e88d29d6a65f9509cd3115ace0f2",
       "disabled": false
     }
   },
   "cnr_custom_nodes": {
-    "comfyui-depthanythingv2": "1.0.1",
     "comfyui_essentials": "1.1.0"
   },
   "file_custom_nodes": [
