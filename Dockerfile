@@ -33,7 +33,7 @@ RUN /usr/bin/yes | comfy --workspace /comfyui install --cuda-version 11.8 --nvid
 WORKDIR /comfyui
 
 # Install runpod
-RUN pip install runpod requests
+RUN pip install runpod requests redis
 
 # Support for the network volume
 ADD src/extra_model_paths.yaml ./
