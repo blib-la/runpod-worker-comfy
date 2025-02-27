@@ -12,10 +12,16 @@ import redis
 from datetime import datetime
 import logging
 import uuid
+import sys
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Add ComfyUI directory to Python path
+comfy_path = "/comfyui"
+if comfy_path not in sys.path:
+    sys.path.append(comfy_path)
 
 # Redis configuration from environment variables
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
@@ -255,5 +261,111 @@ def handler(job):
         "refresh_worker": REFRESH_WORKER
     }
 
+def preload_weights(checkpoint_name):
+    try:
+        # Import ComfyUI modules after adding to path
+        from comfy.sd import load_checkpoint_guess_config
+        import folder_paths
+        
+        # Load the model
+        logger.info(f"Attempting to preload: {checkpoint_name}")
+        
+        # Use the exact path to the model in the RunPod volume
+        model_path = os.path.join('runpod-volume/models/checkpoints', checkpoint_name)
+        
+        if not os.path.exists(model_path):
+            logger.error(f"Model file not found at: {model_path}")
+            return None
+        
+        logger.info(f"Found model at: {model_path}")
+        
+        # Get the embedding directory from ComfyUI's folder_paths
+        embedding_directory = None
+        try:
+            embedding_directory = folder_paths.get_folder_paths("embeddings")
+            logger.info(f"Embedding directory: {embedding_directory}")
+        except Exception as e:
+            logger.warning(f"Could not get embedding directory: {str(e)}")
+        
+        # Call the function with the correct arguments as used in ComfyUI
+        logger.info(f"Calling load_checkpoint_guess_config with path: {model_path}")
+        result = load_checkpoint_guess_config(
+            model_path, 
+            output_vae=True, 
+            output_clip=True, 
+            embedding_directory=embedding_directory
+        )
+        
+        # Log the type of result to help with debugging
+        logger.info(f"Result type: {type(result)}")
+        
+        if isinstance(result, tuple):
+            logger.info(f"Result has {len(result)} elements")
+            # If it's a tuple, it might be (model, clip, vae) or (model, clip, vae, ...)
+            if len(result) >= 3:
+                model, clip, vae = result[:3]
+                logger.info(f"Successfully preloaded: {checkpoint_name}")
+                return model, clip, vae
+            else:
+                logger.error(f"Not enough values returned: expected at least 3, got {len(result)}")
+                return None
+        else:
+            # If it's not a tuple, it might be a single model object
+            logger.info(f"Result is not a tuple, treating as single model object")
+            return result, None, None
+        
+    except Exception as e:
+        logger.error(f"Error preloading model {checkpoint_name}: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return None
+
+def init():
+    """Initialize the handler."""
+    # Wait for ComfyUI to start up
+    logger.info("Waiting for ComfyUI to initialize...")
+    time.sleep(15)  # Give ComfyUI time to start
+    
+    # Check if models directory exists
+    model_dir = 'runpod-volume/models/checkpoints'
+    if os.path.exists(model_dir):
+        logger.info(f"Model directory exists: {model_dir}")
+        try:
+            models = os.listdir(model_dir)
+            logger.info(f"Available models: {models}")
+        except Exception as e:
+            logger.error(f"Error listing models: {str(e)}")
+    else:
+        logger.warning(f"Model directory does not exist: {model_dir}")
+    
+    # Models to preload
+    models_to_preload = [
+        "realvisxlV40_v40LightningBakedvae.safetensors",
+        "pixelArtDiffusionXL_pixelWorld.safetensors"
+    ]
+    
+    # Preload models
+    preloaded = []
+    for checkpoint_name in models_to_preload:
+        try:
+            result = preload_weights(checkpoint_name)
+            if result is not None:
+                preloaded.append(checkpoint_name)
+                logger.info(f"Successfully preloaded: {checkpoint_name}")
+        except Exception as e:
+            logger.error(f"Failed to preload {checkpoint_name}: {str(e)}")
+    
+    logger.info(f"Preloaded {len(preloaded)} models: {preloaded}")
+
+# Only initialize if this module is the main program
 if __name__ == "__main__":
+    # Initialize after a delay to ensure ComfyUI is running
+    import threading
+    threading.Timer(5.0, init).start()
+    
+    # Start the handler
+    logger.info("Starting RunPod handler")
     runpod.serverless.start({"handler": handler})
+else:
+    # If imported as a module, don't run init() immediately
+    logger.info("rp_handler module imported, initialization will be handled by main process")
