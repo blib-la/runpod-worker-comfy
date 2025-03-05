@@ -93,8 +93,13 @@ def validate_input(job_input):
             "path" in lora and "scale" in lora for lora in loras
         ):
             return None, "'loras' must be a list of objects with 'path' and 'scale' keys"
+    
+    # Get optional webhook URL
+    webhook_url = job_input.get("webhookUrl")
+    if webhook_url is not None and not isinstance(webhook_url, str):
+        return None, "'webhookUrl' must be a string"
 
-    return {"workflow": workflow, "images": images, "loras": loras}, None
+    return {"workflow": workflow, "images": images, "loras": loras, "webhook_url": webhook_url}, None
 
 def check_server(url, retries=500, delay=50):
     """Check if a server is reachable via HTTP GET request."""
@@ -258,6 +263,7 @@ def handler(job):
     job_id = job.get("id", str(uuid.uuid4()))  # Use provided job ID or generate one
     job_input = job["input"]
     lora_file_paths = []  # Track downloaded lora files for cleanup
+    start_time = datetime.utcnow().isoformat()
 
     # Validate input
     validated_data, error_message = validate_input(job_input)
@@ -268,6 +274,7 @@ def handler(job):
     workflow = validated_data["workflow"]
     images = validated_data.get("images")
     loras = validated_data.get("loras")
+    webhook_url = validated_data.get("webhook_url")
 
     # Write initial state to Redis
     update_redis(job_id, "NOT_STARTED", workflow=workflow)
@@ -276,20 +283,43 @@ def handler(job):
     if not check_server(f"http://{COMFY_HOST}", COMFY_API_AVAILABLE_MAX_RETRIES, COMFY_API_AVAILABLE_INTERVAL_MS):
         error = "ComfyUI API unavailable"
         update_redis(job_id, "FAILED", error=error)
+        
+        # Call webhook with error if provided
+        if webhook_url:
+            call_webhook(webhook_url, job_id, "error", error=error, additional_data={
+                "start_time": start_time,
+                "end_time": datetime.utcnow().isoformat(),
+                "error_type": "comfy_unavailable"
+            })
+            
         return {"error": error, "job_id": job_id}
 
     # Upload images if provided
     upload_result = upload_images(images)
     if upload_result["status"] == "error":
         update_redis(job_id, "FAILED", error=upload_result["message"])
+        
+        # Call webhook with error if provided
+        if webhook_url:
+            call_webhook(webhook_url, job_id, "error", error=upload_result["message"], additional_data={
+                "start_time": start_time,
+                "end_time": datetime.utcnow().isoformat(),
+                "error_type": "image_upload_failed",
+                "upload_details": upload_result.get("details", [])
+            })
+            
         return {**upload_result, "job_id": job_id}
     
     # Process loras if provided
+    lora_info = []
     if loras:
         logger.info(f"Processing {len(loras)} loras")
         update_redis(job_id, "PROCESSING_LORAS")
         lora_result = download_lora_files(loras)
+        
+        # Only track paths of downloaded loras, not local ones
         lora_file_paths = lora_result.get("file_paths", [])
+        logger.info(f"Tracking {len(lora_file_paths)} downloaded lora files for cleanup: {lora_file_paths}")
         lora_info = lora_result.get("lora_info", [])
         
         if lora_result["status"] == "error":
@@ -380,6 +410,16 @@ def handler(job):
         if lora_file_paths:
             cleanup_result = cleanup_lora_files(lora_file_paths)
             logger.info(f"Cleaned up lora files after error: {cleanup_result['message']}")
+            logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
+        
+        # Call webhook with error if provided
+        if webhook_url:
+            call_webhook(webhook_url, job_id, "error", error=error, additional_data={
+                "start_time": start_time,
+                "end_time": datetime.utcnow().isoformat(),
+                "error_type": "workflow_queue_failed",
+                "lora_count": len(lora_info) if lora_info else 0
+            })
             
         return {"error": error, "job_id": job_id}
 
@@ -401,6 +441,17 @@ def handler(job):
             if lora_file_paths:
                 cleanup_result = cleanup_lora_files(lora_file_paths)
                 logger.info(f"Cleaned up lora files after timeout: {cleanup_result['message']}")
+                logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
+            
+            # Call webhook with error if provided
+            if webhook_url:
+                call_webhook(webhook_url, job_id, "error", error=error, additional_data={
+                    "start_time": start_time,
+                    "end_time": datetime.utcnow().isoformat(),
+                    "error_type": "generation_timeout",
+                    "retries": retries,
+                    "lora_count": len(lora_info) if lora_info else 0
+                })
                 
             return {"error": error, "job_id": job_id}
     except Exception as e:
@@ -411,6 +462,16 @@ def handler(job):
         if lora_file_paths:
             cleanup_result = cleanup_lora_files(lora_file_paths)
             logger.info(f"Cleaned up lora files after polling error: {cleanup_result['message']}")
+            logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
+            
+        # Call webhook with error if provided
+        if webhook_url:
+            call_webhook(webhook_url, job_id, "error", error=error, additional_data={
+                "start_time": start_time,
+                "end_time": datetime.utcnow().isoformat(),
+                "error_type": "polling_error",
+                "lora_count": len(lora_info) if lora_info else 0
+            })
             
         return {"error": error, "job_id": job_id}
 
@@ -422,15 +483,57 @@ def handler(job):
     if lora_file_paths:
         cleanup_result = cleanup_lora_files(lora_file_paths)
         logger.info(f"Cleaned up lora files after successful inference: {cleanup_result['message']}")
+        logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
         cleanup_info = {
             "lora_cleanup": cleanup_result["status"],
-            "lora_cleanup_details": cleanup_result.get("details", [])
+            "lora_cleanup_details": cleanup_result.get("details", []),
+            "lora_skipped_files": cleanup_result.get("skipped_files", [])
         }
+    
+    end_time = datetime.utcnow().isoformat()
     
     if images_result["status"] == "success":
         update_redis(job_id, "COMPLETED", result=images_result["message"])
+        
+        # Call webhook with success result if provided
+        if webhook_url:
+            # Prepare additional data for webhook
+            additional_data = {
+                "start_time": start_time,
+                "end_time": end_time,
+                "processing_time_seconds": (datetime.fromisoformat(end_time) - datetime.fromisoformat(start_time)).total_seconds(),
+                "lora_count": len(lora_info) if lora_info else 0,
+                "image_count": len(images_result.get("message", [])),
+                "prompt_id": prompt_id
+            }
+            
+            webhook_result = call_webhook(
+                webhook_url, 
+                job_id, 
+                "success", 
+                result=images_result["message"],
+                additional_data=additional_data
+            )
+            cleanup_info["webhook_result"] = webhook_result
     else:
         update_redis(job_id, "FAILED", error="Image processing failed")
+        
+        # Call webhook with error if provided
+        if webhook_url:
+            webhook_result = call_webhook(
+                webhook_url, 
+                job_id, 
+                "error", 
+                error="Image processing failed",
+                additional_data={
+                    "start_time": start_time,
+                    "end_time": end_time,
+                    "error_type": "image_processing_failed",
+                    "lora_count": len(lora_info) if lora_info else 0,
+                    "prompt_id": prompt_id
+                }
+            )
+            cleanup_info["webhook_result"] = webhook_result
 
     return {
         "job_id": job_id,
@@ -709,6 +812,7 @@ def download_lora_files(loras):
                 
             local_path = os.path.join(LORA_DIR, filename)
             file_paths.append(local_path)
+            logger.info(f"Added downloaded lora path to file_paths: {local_path}")
             
             try:
                 # Download the file
@@ -746,7 +850,7 @@ def download_lora_files(loras):
         else:
             # Local path, no need to download
             filename = os.path.basename(path)
-            logger.info(f"Using local lora at {path}")
+            logger.info(f"Using local lora at {path} (not adding to file_paths for cleanup)")
             lora_info.append({
                 "path": path,
                 "scale": scale,
@@ -785,15 +889,29 @@ def cleanup_lora_files(file_paths):
     if not file_paths:
         return {"status": "success", "message": "No lora files to clean up"}
     
+    logger.info(f"Cleanup requested for {len(file_paths)} lora files: {file_paths}")
+    
     cleanup_errors = []
     deleted_files = []
+    skipped_files = []
+    
+    # Define the directory where downloaded loras are stored
+    LORA_DIR = "/runpod-volume/models/loras"
     
     for file_path in file_paths:
         try:
-            if os.path.exists(file_path):
+            # Only delete files that are in the download directory
+            # This ensures we only delete files that were downloaded from URLs
+            if os.path.exists(file_path) and file_path.startswith(LORA_DIR):
+                logger.info(f"Deleting lora file: {file_path}")
                 os.remove(file_path)
                 deleted_files.append(file_path)
                 logger.info(f"Successfully deleted lora file: {file_path}")
+            else:
+                # Skip files that don't exist or aren't in the download directory
+                reason = "non-existent file" if not os.path.exists(file_path) else "local file (not in download directory)"
+                logger.warning(f"Skipping deletion of {reason}: {file_path}")
+                skipped_files.append(file_path)
         except Exception as e:
             error_msg = f"Error deleting {file_path}: {str(e)}"
             cleanup_errors.append(error_msg)
@@ -804,14 +922,85 @@ def cleanup_lora_files(file_paths):
             "status": "warning",
             "message": "Some lora files could not be deleted",
             "details": cleanup_errors,
-            "deleted_files": deleted_files
+            "deleted_files": deleted_files,
+            "skipped_files": skipped_files
         }
     
     return {
         "status": "success",
         "message": "All lora files cleaned up successfully",
-        "details": deleted_files
+        "details": deleted_files,
+        "skipped_files": skipped_files
     }
+
+def call_webhook(webhook_url, job_id, status, result=None, error=None, additional_data=None):
+    """Call a webhook URL with the job results.
+    
+    Args:
+        webhook_url: URL to call
+        job_id: ID of the job
+        status: Status of the job (success, error)
+        result: Result of the job (if successful)
+        error: Error message (if failed)
+        additional_data: Additional data to include in the payload
+        
+    Returns:
+        dict: Status of webhook call
+    """
+    if not webhook_url:
+        return {"status": "skipped", "message": "No webhook URL provided"}
+    
+    try:
+        logger.info(f"Calling webhook URL: {webhook_url}")
+        
+        # Prepare payload
+        payload = {
+            "job_id": job_id,
+            "status": status,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        if result is not None:
+            payload["result"] = result
+            
+        if error is not None:
+            payload["error"] = error
+            
+        if additional_data is not None:
+            payload.update(additional_data)
+        
+        # Send POST request to webhook URL
+        response = requests.post(
+            webhook_url,
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=30  # 30 second timeout
+        )
+        
+        # Check response
+        if response.status_code >= 200 and response.status_code < 300:
+            logger.info(f"Webhook call successful: {response.status_code}")
+            return {
+                "status": "success",
+                "message": f"Webhook call successful: {response.status_code}",
+                "response": response.text
+            }
+        else:
+            logger.error(f"Webhook call failed: {response.status_code} - {response.text}")
+            return {
+                "status": "error",
+                "message": f"Webhook call failed: {response.status_code}",
+                "response": response.text
+            }
+    except Exception as e:
+        error_msg = f"Error calling webhook: {str(e)}"
+        logger.error(error_msg)
+        import traceback
+        logger.error(traceback.format_exc())
+        return {
+            "status": "error",
+            "message": error_msg
+        }
 
 # Only initialize if this module is the main program
 if __name__ == "__main__":
