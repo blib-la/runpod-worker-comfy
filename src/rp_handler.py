@@ -9,14 +9,42 @@ import requests
 import base64
 from io import BytesIO
 import redis
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import uuid
 import sys
+import traceback
+from typing import Dict, List, Tuple, Any, Optional, Union
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(name)s] [%(levelname)s] [%(job_id)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 logger = logging.getLogger(__name__)
+
+# Add a filter to include job_id in log records
+class JobIdFilter(logging.Filter):
+    """Filter that adds job_id to log records."""
+    
+    def __init__(self, name=''):
+        super().__init__(name)
+        self.job_id = 'no_job'
+    
+    def set_job_id(self, job_id):
+        """Set the current job ID."""
+        self.job_id = job_id
+    
+    def filter(self, record):
+        """Add job_id to the log record."""
+        if not hasattr(record, 'job_id'):
+            record.job_id = self.job_id
+        return True
+
+# Create and add the filter to the logger
+job_id_filter = JobIdFilter()
+logger.addFilter(job_id_filter)
 
 # Add ComfyUI directory to Python path
 comfy_path = "/comfyui"
@@ -50,6 +78,9 @@ FLUX = os.environ.get("FLUX", "false").lower() == "true"
 
 def update_redis(job_id, state, workflow=None, result=None, error=None):
     """Update job state in Redis."""
+    # Set job ID for logging
+    job_id_filter.set_job_id(job_id)
+    
     job = {
         "id": job_id,
         "state": state,
@@ -60,9 +91,9 @@ def update_redis(job_id, state, workflow=None, result=None, error=None):
     }
     try:
         r.set(f"job:{job_id}", json.dumps(job))
-        logger.info(f"Updated job {job_id} state to {state}")
+        logger.info(f"Updated job state to {state}")
     except Exception as e:
-        logger.error(f"Failed to update Redis for job {job_id}: {str(e)}")
+        logger.error(f"Failed to update Redis: {str(e)}")
 
 def validate_input(job_input):
     """Validates the input for the handler function."""
@@ -101,22 +132,49 @@ def validate_input(job_input):
 
     return {"workflow": workflow, "images": images, "loras": loras, "webhook_url": webhook_url}, None
 
-def check_server(url, retries=500, delay=50):
-    """Check if a server is reachable via HTTP GET request."""
-    for i in range(retries):
+def check_server(url, retries=500, delay=50, job_id=None):
+    """Check if ComfyUI API is available.
+    
+    Args:
+        url: URL to check
+        retries: Number of retries
+        delay: Delay between retries in milliseconds
+        job_id: ID of the job for logging
+        
+    Returns:
+        bool: True if API is available, False otherwise
+    """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
+    for _ in range(retries):
         try:
-            response = requests.get(url)
+            response = requests.get(f"{url}/system_stats", timeout=5)
             if response.status_code == 200:
                 logger.info("ComfyUI API is reachable")
                 return True
-        except requests.RequestException:
+        except:
             pass
         time.sleep(delay / 1000)
+    
     logger.error(f"Failed to connect to {url} after {retries} attempts")
     return False
 
-def upload_images(images):
-    """Upload a list of base64 encoded images to the ComfyUI server."""
+def upload_images(images, job_id=None):
+    """Upload images to ComfyUI.
+    
+    Args:
+        images: List of image data (base64 or URLs)
+        job_id: ID of the job for logging
+        
+    Returns:
+        dict: Status of upload operation
+    """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
     if not images:
         return {"status": "success", "message": "No images to upload", "details": []}
 
@@ -152,16 +210,41 @@ def upload_images(images):
         "details": responses,
     }
 
-def queue_workflow(workflow):
-    """Queue a workflow to be processed by ComfyUI."""
-    data = json.dumps({"prompt": workflow}).encode("utf-8")
-    req = urllib.request.Request(f"http://{COMFY_HOST}/prompt", data=data)
-    return json.loads(urllib.request.urlopen(req).read())
+def queue_workflow(workflow, job_id=None):
+    """Queue a workflow in ComfyUI.
+    
+    Args:
+        workflow: Workflow to queue
+        job_id: ID of the job for logging
+        
+    Returns:
+        dict: Response from ComfyUI API
+    """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
+    response = requests.post(f"http://{COMFY_HOST}/prompt", json=workflow)
+    response.raise_for_status()
+    return response.json()
 
-def get_history(prompt_id):
-    """Retrieve the history of a given prompt using its ID."""
-    with urllib.request.urlopen(f"http://{COMFY_HOST}/history/{prompt_id}") as response:
-        return json.loads(response.read())
+def get_history(prompt_id, job_id=None):
+    """Get history for a prompt from ComfyUI.
+    
+    Args:
+        prompt_id: ID of the prompt
+        job_id: ID of the job for logging
+        
+    Returns:
+        dict: History from ComfyUI API
+    """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
+    response = requests.get(f"http://{COMFY_HOST}/history/{prompt_id}")
+    response.raise_for_status()
+    return response.json()
 
 def base64_encode(img_path):
     """Returns base64 encoded image."""
@@ -169,7 +252,21 @@ def base64_encode(img_path):
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 def process_output_images(outputs, job_id):
-    """Process generated images and return as S3 URL or base64."""
+    """Process output images from ComfyUI.
+    
+    Args:
+        outputs: Dictionary of outputs from ComfyUI
+        job_id: ID of the job
+        
+    Returns:
+        dict: Status of processing with image URLs
+    """
+    # Set job ID for logging
+    job_id_filter.set_job_id(job_id)
+    
+    if not outputs:
+        return {"status": "error", "message": "No outputs found"}
+
     COMFY_OUTPUT_PATH = os.environ.get("COMFY_OUTPUT_PATH", "/comfyui/output")
     output_images = []
 
@@ -202,15 +299,23 @@ def process_output_images(outputs, job_id):
         "message": processed_images,
     }
 
-def verify_lora_files(lora_info):
-    """Verify that downloaded lora files are accessible to ComfyUI.
+def verify_lora_files(lora_info, job_id=None):
+    """Verify that lora files are accessible to ComfyUI.
     
     Args:
         lora_info: List of dictionaries with lora information
+        job_id: ID of the job for logging
         
     Returns:
-        bool: True if all files are accessible, False otherwise
+        bool: True if all lora files are accessible, False otherwise
     """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
+    if not lora_info:
+        return True
+
     try:
         # Import ComfyUI's folder_paths module to check lora paths
         import folder_paths
@@ -219,19 +324,35 @@ def verify_lora_files(lora_info):
         lora_folders = folder_paths.get_folder_paths("loras")
         logger.info(f"ComfyUI lora folders: {lora_folders}")
         
-        # Check if our lora directory is in the ComfyUI lora folders
-        our_lora_dir = "/runpod-volume/models/loras"
-        if our_lora_dir not in lora_folders:
-            logger.warning(f"Our lora directory {our_lora_dir} is not in ComfyUI's lora folders")
-            # Try to add it to ComfyUI's folder paths
-            folder_paths.add_model_folder_path("loras", our_lora_dir)
-            logger.info(f"Added {our_lora_dir} to ComfyUI's lora folders")
-            
-            # Verify it was added
-            lora_folders = folder_paths.get_folder_paths("loras")
+        # Check which lora directory exists and use that
+        LORA_DIRS = [
+            "/runpod-volume/models/loras",
+            "/workspace/models/loras"
+        ]
+        
+        our_lora_dirs = []
+        for dir_path in LORA_DIRS:
+            if os.path.exists(dir_path):
+                our_lora_dirs.append(dir_path)
+                logger.info(f"Found lora directory: {dir_path}")
+        
+        if not our_lora_dirs:
+            logger.warning("No lora directories found")
+            return False
+        
+        # Check if our lora directories are in ComfyUI's lora folders
+        for our_lora_dir in our_lora_dirs:
             if our_lora_dir not in lora_folders:
-                logger.error(f"Failed to add {our_lora_dir} to ComfyUI's lora folders")
-                return False
+                logger.warning(f"Our lora directory {our_lora_dir} is not in ComfyUI's lora folders")
+                # Try to add it to ComfyUI's folder paths
+                folder_paths.add_model_folder_path("loras", our_lora_dir)
+                logger.info(f"Added {our_lora_dir} to ComfyUI's lora folders")
+                
+                # Verify it was added
+                lora_folders = folder_paths.get_folder_paths("loras")
+                if our_lora_dir not in lora_folders:
+                    logger.error(f"Failed to add {our_lora_dir} to ComfyUI's lora folders")
+                    return False
         
         # Check if each downloaded lora file exists and is accessible
         for lora in lora_info:
@@ -239,7 +360,21 @@ def verify_lora_files(lora_info):
                 lora_path = lora.get("path")
                 if not os.path.exists(lora_path):
                     logger.error(f"Downloaded lora file does not exist: {lora_path}")
-                    return False
+                    
+                    # Check if the file exists in the other lora directory
+                    filename = os.path.basename(lora_path)
+                    found = False
+                    for our_lora_dir in our_lora_dirs:
+                        if our_lora_dir not in lora_path:  # Check if it's a different directory
+                            alt_path = os.path.join(our_lora_dir, filename)
+                            if os.path.exists(alt_path):
+                                logger.info(f"Found lora file in alternate location: {alt_path}")
+                                lora["path"] = alt_path  # Update the path
+                                found = True
+                                break
+                    
+                    if not found:
+                        return False
                 
                 # Check if the file is readable
                 try:
@@ -261,6 +396,10 @@ def verify_lora_files(lora_info):
 def handler(job):
     """Main handler for processing a job."""
     job_id = job.get("id", str(uuid.uuid4()))  # Use provided job ID or generate one
+    
+    # Set job ID for logging
+    job_id_filter.set_job_id(job_id)
+    
     job_input = job["input"]
     lora_file_paths = []  # Track downloaded lora files for cleanup
     start_time = datetime.utcnow().isoformat()
@@ -280,7 +419,7 @@ def handler(job):
     update_redis(job_id, "NOT_STARTED", workflow=workflow)
 
     # Check ComfyUI availability
-    if not check_server(f"http://{COMFY_HOST}", COMFY_API_AVAILABLE_MAX_RETRIES, COMFY_API_AVAILABLE_INTERVAL_MS):
+    if not check_server(f"http://{COMFY_HOST}", COMFY_API_AVAILABLE_MAX_RETRIES, COMFY_API_AVAILABLE_INTERVAL_MS, job_id):
         error = "ComfyUI API unavailable"
         update_redis(job_id, "FAILED", error=error)
         
@@ -295,7 +434,7 @@ def handler(job):
         return {"error": error, "job_id": job_id}
 
     # Upload images if provided
-    upload_result = upload_images(images)
+    upload_result = upload_images(images, job_id)
     if upload_result["status"] == "error":
         update_redis(job_id, "FAILED", error=upload_result["message"])
         
@@ -315,7 +454,7 @@ def handler(job):
     if loras:
         logger.info(f"Processing {len(loras)} loras")
         update_redis(job_id, "PROCESSING_LORAS")
-        lora_result = download_lora_files(loras)
+        lora_result = download_lora_files(loras, job_id)
         
         # Only track paths of downloaded loras, not local ones
         lora_file_paths = lora_result.get("file_paths", [])
@@ -332,7 +471,7 @@ def handler(job):
         
         # Verify lora files are accessible to ComfyUI
         if lora_info:
-            if not verify_lora_files(lora_info):
+            if not verify_lora_files(lora_info, job_id):
                 logger.warning("Some lora files may not be accessible to ComfyUI")
                 update_redis(job_id, "LORA_VERIFICATION_WARNING", error="Some lora files may not be accessible to ComfyUI")
             else:
@@ -399,7 +538,7 @@ def handler(job):
     # Queue the workflow
     try:
         update_redis(job_id, "IN_QUEUE")
-        queued_workflow = queue_workflow(workflow)
+        queued_workflow = queue_workflow(workflow, job_id)
         prompt_id = queued_workflow["prompt_id"]
         logger.info(f"Queued workflow with prompt ID {prompt_id}")
     except Exception as e:
@@ -408,7 +547,7 @@ def handler(job):
         
         # Clean up lora files if any were downloaded
         if lora_file_paths:
-            cleanup_result = cleanup_lora_files(lora_file_paths)
+            cleanup_result = cleanup_lora_files(lora_file_paths, job_id)
             logger.info(f"Cleaned up lora files after error: {cleanup_result['message']}")
             logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
         
@@ -428,7 +567,7 @@ def handler(job):
     retries = 0
     try:
         while retries < COMFY_POLLING_MAX_RETRIES:
-            history = get_history(prompt_id)
+            history = get_history(prompt_id, job_id)
             if prompt_id in history and history[prompt_id].get("outputs"):
                 break
             time.sleep(COMFY_POLLING_INTERVAL_MS / 1000)
@@ -439,7 +578,7 @@ def handler(job):
             
             # Clean up lora files if any were downloaded
             if lora_file_paths:
-                cleanup_result = cleanup_lora_files(lora_file_paths)
+                cleanup_result = cleanup_lora_files(lora_file_paths, job_id)
                 logger.info(f"Cleaned up lora files after timeout: {cleanup_result['message']}")
                 logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
             
@@ -460,7 +599,7 @@ def handler(job):
         
         # Clean up lora files if any were downloaded
         if lora_file_paths:
-            cleanup_result = cleanup_lora_files(lora_file_paths)
+            cleanup_result = cleanup_lora_files(lora_file_paths, job_id)
             logger.info(f"Cleaned up lora files after polling error: {cleanup_result['message']}")
             logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
             
@@ -481,7 +620,7 @@ def handler(job):
     # Clean up lora files if any were downloaded
     cleanup_info = {}
     if lora_file_paths:
-        cleanup_result = cleanup_lora_files(lora_file_paths)
+        cleanup_result = cleanup_lora_files(lora_file_paths, job_id)
         logger.info(f"Cleaned up lora files after successful inference: {cleanup_result['message']}")
         logger.info(f"Deleted {len(cleanup_result.get('details', []))} files, skipped {len(cleanup_result.get('skipped_files', []))} files")
         cleanup_info = {
@@ -688,6 +827,9 @@ def preload_weights(checkpoint_name):
 
 def init():
     """Initialize the handler."""
+    # Set a default job ID for initialization logs
+    job_id_filter.set_job_id('init')
+    
     # Wait for ComfyUI to start up
     logger.info("Waiting for ComfyUI to initialize...")
     time.sleep(15)  # Give ComfyUI time to start
@@ -774,19 +916,41 @@ def init():
     
     logger.info(f"Preloaded {len(preloaded)} models: {preloaded}")
 
-def download_lora_files(loras):
+def download_lora_files(loras, job_id=None):
     """Download lora files from network paths to disk.
     
     Args:
         loras: List of dictionaries with 'path' and 'scale' keys
+        job_id: ID of the job for logging
         
     Returns:
         dict: Status of download operation with downloaded file paths and lora info
     """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
     if not loras:
         return {"status": "success", "message": "No loras to process", "details": [], "file_paths": [], "lora_info": []}
     
-    LORA_DIR = "/runpod-volume/models/loras"
+    # Check which lora directory exists and use that
+    LORA_DIRS = [
+        "/runpod-volume/models/loras",
+        "/workspace/models/loras"
+    ]
+    
+    LORA_DIR = None
+    for dir_path in LORA_DIRS:
+        if os.path.exists(dir_path):
+            LORA_DIR = dir_path
+            logger.info(f"Using lora directory: {LORA_DIR}")
+            break
+    
+    if LORA_DIR is None:
+        # If neither exists, default to the first one and create it
+        LORA_DIR = LORA_DIRS[0]
+        logger.warning(f"No existing lora directory found, creating: {LORA_DIR}")
+    
     os.makedirs(LORA_DIR, exist_ok=True)
     
     responses = []
@@ -811,8 +975,43 @@ def download_lora_files(loras):
                 filename = f"{filename}.safetensors"
                 
             local_path = os.path.join(LORA_DIR, filename)
-            file_paths.append(local_path)
-            logger.info(f"Added downloaded lora path to file_paths: {local_path}")
+            
+            # Check if the file already exists
+            file_exists = os.path.exists(local_path)
+            
+            # Check if this is a protected model
+            is_protected = is_protected_model(filename)
+            
+            if file_exists:
+                logger.info(f"Lora file already exists: {local_path}")
+                
+                # Only add to file_paths for cleanup if it's not a protected model
+                # (i.e., only if it has "pytorch_lora_weights" in the name)
+                if not is_protected:
+                    file_paths.append(local_path)
+                    logger.info(f"Added existing lora path to file_paths for cleanup: {local_path}")
+                else:
+                    logger.info(f"Not adding protected model to cleanup list: {local_path}")
+                
+                # Add to lora info with local path
+                lora_info.append({
+                    "path": local_path,
+                    "scale": scale,
+                    "original_path": path,
+                    "downloaded": False,  # Mark as not downloaded since it already existed
+                    "lora_name": filename  # Add lora_name for ComfyUI workflow
+                })
+                
+                responses.append(f"Using existing lora file: {local_path}")
+                continue
+            
+            # If we get here, we need to download the file
+            # Only add to file_paths for cleanup if it's not a protected model
+            if not is_protected:
+                file_paths.append(local_path)
+                logger.info(f"Added downloaded lora path to file_paths for cleanup: {local_path}")
+            else:
+                logger.info(f"Not adding protected model to cleanup list: {local_path}")
             
             try:
                 # Download the file
@@ -877,15 +1076,39 @@ def download_lora_files(loras):
         "lora_info": lora_info
     }
 
-def cleanup_lora_files(file_paths):
+def is_protected_model(filename):
+    """Check if a file is a protected model that should never be deleted.
+    
+    Args:
+        filename: Name of the file to check
+        
+    Returns:
+        bool: True if the file is protected, False otherwise
+    """
+    # Check if the file has the signature of a model that should be deleted
+    # Only delete files with "pytorch_lora_weights" in the name
+    if "pytorch_lora_weights" in filename:
+        logger.info(f"File {filename} is not protected (has pytorch_lora_weights in name)")
+        return False
+    
+    # All other models are protected
+    logger.info(f"File {filename} is protected (does not have pytorch_lora_weights in name)")
+    return True
+
+def cleanup_lora_files(file_paths, job_id=None):
     """Delete downloaded lora files after inference is complete.
     
     Args:
         file_paths: List of file paths to delete
+        job_id: ID of the job for logging
         
     Returns:
         dict: Status of cleanup operation
     """
+    # Set job ID for logging if provided
+    if job_id:
+        job_id_filter.set_job_id(job_id)
+    
     if not file_paths:
         return {"status": "success", "message": "No lora files to clean up"}
     
@@ -895,21 +1118,43 @@ def cleanup_lora_files(file_paths):
     deleted_files = []
     skipped_files = []
     
-    # Define the directory where downloaded loras are stored
-    LORA_DIR = "/runpod-volume/models/loras"
+    # Define the directories where downloaded loras are stored
+    LORA_DIRS = [
+        "/runpod-volume/models/loras",
+        "/workspace/models/loras"
+    ]
     
     for file_path in file_paths:
         try:
-            # Only delete files that are in the download directory
-            # This ensures we only delete files that were downloaded from URLs
-            if os.path.exists(file_path) and file_path.startswith(LORA_DIR):
-                logger.info(f"Deleting lora file: {file_path}")
+            # Check if the file exists
+            if not os.path.exists(file_path):
+                reason = "non-existent file"
+                logger.warning(f"Skipping deletion of {reason}: {file_path}")
+                skipped_files.append(file_path)
+                continue
+                
+            # Check if the file is in one of the lora directories
+            is_in_lora_dir = any(file_path.startswith(lora_dir) for lora_dir in LORA_DIRS)
+            
+            # Get the filename
+            filename = os.path.basename(file_path)
+            
+            # Check if the file is a protected model
+            if is_protected_model(filename):
+                reason = "protected model file (does not have pytorch_lora_weights in name)"
+                logger.warning(f"Skipping deletion of {reason}: {file_path}")
+                skipped_files.append(file_path)
+                continue
+            
+            # Only delete files that are in the download directories AND were downloaded from URLs
+            # We can identify URL downloads because they were added to file_paths in download_lora_files
+            if is_in_lora_dir:
+                logger.info(f"Deleting lora file (has pytorch_lora_weights in name): {file_path}")
                 os.remove(file_path)
                 deleted_files.append(file_path)
                 logger.info(f"Successfully deleted lora file: {file_path}")
             else:
-                # Skip files that don't exist or aren't in the download directory
-                reason = "non-existent file" if not os.path.exists(file_path) else "local file (not in download directory)"
+                reason = "local file (not in download directory)"
                 logger.warning(f"Skipping deletion of {reason}: {file_path}")
                 skipped_files.append(file_path)
         except Exception as e:
@@ -947,6 +1192,9 @@ def call_webhook(webhook_url, job_id, status, result=None, error=None, additiona
     Returns:
         dict: Status of webhook call
     """
+    # Set job ID for logging
+    job_id_filter.set_job_id(job_id)
+    
     if not webhook_url:
         return {"status": "skipped", "message": "No webhook URL provided"}
     
