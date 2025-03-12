@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/blib-la/runpod-worker-comfy/compare/3.4.0...3.5.0) (2025-03-12)
+
+
+### Features
+
+* added support for hub ([c8dd49c](https://github.com/blib-la/runpod-worker-comfy/commit/c8dd49cc2d8c23d58b48b1823bdecc3267f9accd))
+
 # [3.4.0](https://github.com/blib-la/runpod-worker-comfy/compare/3.3.0...3.4.0) (2024-11-19)
 
 
