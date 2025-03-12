@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/blib-la/runpod-worker-comfy/compare/3.5.0...3.6.0) (2025-03-12)
+
+
+### Features
+
+* update comfyui to 0.3.26 ([ac0269e](https://github.com/blib-la/runpod-worker-comfy/commit/ac0269e683a0bcba43fafad40d4b56f51cad2588))
+
 # [3.5.0](https://github.com/blib-la/runpod-worker-comfy/compare/3.4.0...3.5.0) (2025-03-12)
 
 
