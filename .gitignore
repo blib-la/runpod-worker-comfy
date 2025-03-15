@@ -5,3 +5,8 @@ data
 models
 simulated_uploaded
 __pycache__
+/.idea/php.xml
+/.idea/runpod-worker-comfy.iml
+/.idea/vcs.xml
+/.idea/webResources.xml
+/.idea/workspace.xml
